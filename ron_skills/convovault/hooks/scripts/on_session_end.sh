@@ -1,6 +1,8 @@
 #!/bin/bash
 # ConvoVault SessionEnd hook - auto-saves session transcript to vault
 # Receives JSON via stdin with session_id and transcript_path
+#
+# Production version: slim logging, errors visible in hook.log
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -11,7 +13,7 @@ if [ ! -f "$PYTHON" ]; then
     PYTHON="python3"
 fi
 
-# Read stdin, log to hook.log for diagnostics, pipe to Python parser
+# Read stdin, log session ID, pipe to Python parser
 INPUT=$(cat)
 echo "[$(date)] Session save: $(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('session_id','?'))" 2>/dev/null)" >> ~/.convovault/hook.log 2>/dev/null
 

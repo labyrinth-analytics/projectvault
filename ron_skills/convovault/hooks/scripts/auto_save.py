@@ -156,7 +156,6 @@ def ensure_tables(conn):
         CREATE TABLE IF NOT EXISTS session_skills (
             session_id TEXT NOT NULL,
             skill_name TEXT NOT NULL,
-            context TEXT,
             FOREIGN KEY (session_id) REFERENCES sessions(id),
             UNIQUE(session_id, skill_name)
         );
@@ -175,14 +174,34 @@ def save_to_db(db_path, session_id, parsed):
     try:
         ensure_tables(conn)
 
-        # Check if session already exists
-        cursor = conn.execute("SELECT id FROM sessions WHERE id = ?", (session_id,))
+        # Use Claude's session_id as our primary key so dedup actually works.
+        # Previous bug: generated a random UUID for id but checked WHERE id = session_id,
+        # so the duplicate guard never matched anything.
+        session_uuid = session_id
+
+        # Check if session already exists (e.g., resumed session or duplicate hook fire)
+        cursor = conn.execute("SELECT id FROM sessions WHERE id = ?", (session_uuid,))
         if cursor.fetchone():
-            # Already saved (maybe manually), skip
-            return False
+            # Already saved -- update instead of duplicate
+            now = datetime.now().isoformat()
+            conn.execute(
+                """UPDATE sessions SET summary = ?, decisions = ?, artifacts = ?,
+                   tags = ?, end_date = ?, updated_at = ?
+                   WHERE id = ?""",
+                (
+                    parsed["summary"],
+                    json.dumps(parsed["decisions"]),
+                    json.dumps(parsed["artifacts"]),
+                    json.dumps(["auto-saved"]),
+                    now,
+                    now,
+                    session_uuid,
+                ),
+            )
+            conn.commit()
+            return True  # Updated existing record
 
         now = datetime.now().isoformat()
-        session_uuid = str(uuid.uuid4())
 
         conn.execute(
             """INSERT INTO sessions (id, title, surface, summary, decisions, artifacts,
