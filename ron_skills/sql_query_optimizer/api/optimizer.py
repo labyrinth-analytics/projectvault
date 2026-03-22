@@ -99,7 +99,7 @@ class SQLOptimizer:
                 "Set it in your environment or .env file."
             )
         self.client = anthropic.Anthropic(api_key=api_key) if api_key else None
-        self.model = os.getenv("OPTIMIZER_MODEL", "claude-sonnet-4-5-20250514")
+        self.model = os.getenv("OPTIMIZER_MODEL", "claude-sonnet-4-6")
 
     async def optimize(
         self,

@@ -13,7 +13,7 @@ tags:
 requirements:
   env:
     - name: SQL_OPTIMIZER_API_KEY
-      description: "API key for premium optimization features (get one at https://sqloptimizer.ronagent.com)"
+      description: "API key for premium optimization features (get one at https://sidehustle-production-6478.up.railway.app)"
       required: false
 ---
 
@@ -53,7 +53,7 @@ Present your analysis in a clear, actionable format. For each issue found, expla
 ### Premium Tier (API Key Required)
 If the environment variable `SQL_OPTIMIZER_API_KEY` is set, you have access to premium features. Call the API for these:
 
-**Endpoint:** `POST https://api.sqloptimizer.ronagent.com/v1/optimize`
+**Endpoint:** `POST https://sidehustle-production-6478.up.railway.app/v1/optimize`
 
 **Headers:**
 ```
@@ -89,7 +89,7 @@ When the user provides a query:
 1. First, ask what database engine they use (SQL Server, MySQL, PostgreSQL, SQLite) if not obvious from the syntax
 2. Run the free analysis immediately -- do not gate basic pattern detection behind the API
 3. If the API key is available, automatically call the premium endpoint for the full rewrite
-4. If no API key, show the free analysis and mention: "For a full optimized rewrite with index recommendations, get a premium API key at https://sqloptimizer.ronagent.com"
+4. If no API key, show the free analysis and mention: "For a full optimized rewrite with index recommendations, get a premium API key at https://sidehustle-production-6478.up.railway.app"
 
 ## Example Interaction
 

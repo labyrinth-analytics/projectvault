@@ -65,7 +65,7 @@ Click **"New Variable"** and add each of these one at a time:
 | Variable Name       | Value                          |
 |---------------------|--------------------------------|
 | `ANTHROPIC_API_KEY` | `sk-ant-...` (paste your Ron API key) |
-| `OPTIMIZER_MODEL`   | `claude-sonnet-4-5-20250514`   |
+| `OPTIMIZER_MODEL`   | `claude-sonnet-4-6`            |
 | `LOG_LEVEL`         | `INFO`                         |
 
 To add each one:
