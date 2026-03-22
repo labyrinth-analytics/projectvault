@@ -18,6 +18,7 @@ mcp = FastMCP(
         "Use save_session to vault decisions and context. "
         "Use search_sessions or get_context_for to recall prior work. "
         "Use get_recent_sessions to see what was done recently. "
+        "Use vault_suggest to get proactive recommendations on what to revisit. "
         "Tag sessions with personas for agent-specific memory."
     )
 )
@@ -299,6 +300,32 @@ def get_skill_history(
         }
         for s in sessions
     ]
+
+
+@mcp.tool()
+def vault_suggest(
+    project: str | None = None,
+    persona: str | None = None,
+    days_back: int = 14,
+    limit: int = 5,
+) -> dict:
+    """Get proactive context suggestions based on your session history.
+
+    Analyzes recent sessions and surfaces:
+    - Sessions with unresolved open questions that need follow-up
+    - Sessions with key decisions worth reviewing before starting new work
+    - Skill gaps: skills expected by a project but not used recently
+
+    Use at the start of a session to find the most valuable prior context,
+    or when you're unsure what to work on next.
+
+    Args:
+        project: Filter suggestions to this project
+        persona: Filter to sessions tagged with this persona (prefix matching)
+        days_back: How far back to look (default 14 days)
+        limit: Max suggestions to return (default 5)
+    """
+    return db.get_suggestions(project, persona, days_back, limit)
 
 
 if __name__ == "__main__":

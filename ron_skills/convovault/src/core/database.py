@@ -351,6 +351,145 @@ class SessionDatabase:
             })
         return results
 
+    # -- Suggestions --
+
+    def get_suggestions(
+        self, project: Optional[str] = None,
+        persona: Optional[str] = None,
+        days_back: int = 14, limit: int = 5
+    ) -> dict:
+        """Generate proactive context suggestions.
+
+        Finds sessions worth revisiting based on:
+        - Unresolved open questions
+        - Recent decisions that may need follow-up
+        - Skill gaps (expected by project but not used recently)
+        """
+        cutoff = (datetime.now() - timedelta(days=days_back)).isoformat()
+        suggestions = []
+
+        # 1. Sessions with open questions (highest priority)
+        oq_sql = """
+            SELECT * FROM sessions
+            WHERE start_date >= ?
+              AND open_questions IS NOT NULL
+              AND open_questions != '[]'
+        """
+        oq_params: list = [cutoff]
+        if project:
+            oq_sql += " AND project = ?"
+            oq_params.append(project)
+        if persona:
+            oq_sql += " AND id IN (SELECT session_id FROM persona_sessions WHERE persona_name LIKE ?)"
+            oq_params.append(persona + "%")
+        oq_sql += " ORDER BY start_date DESC"
+
+        rows = self.conn.execute(oq_sql, oq_params).fetchall()
+        for row in rows:
+            session = self._row_to_session(row)
+            if session.open_questions:
+                suggestions.append({
+                    "session_id": session.id,
+                    "title": session.title,
+                    "date": session.start_date,
+                    "reason": "Has %d unresolved open question(s)" % len(session.open_questions),
+                    "type": "open_questions",
+                    "priority": 1,
+                    "open_questions": session.open_questions,
+                    "summary_preview": session.summary[:300] + "..." if len(session.summary) > 300 else session.summary,
+                })
+
+        # 2. Sessions with decisions worth reviewing
+        dec_sql = """
+            SELECT * FROM sessions
+            WHERE start_date >= ?
+              AND decisions IS NOT NULL
+              AND decisions != '[]'
+        """
+        dec_params: list = [cutoff]
+        if project:
+            dec_sql += " AND project = ?"
+            dec_params.append(project)
+        if persona:
+            dec_sql += " AND id IN (SELECT session_id FROM persona_sessions WHERE persona_name LIKE ?)"
+            dec_params.append(persona + "%")
+        dec_sql += " ORDER BY start_date DESC"
+
+        seen_ids = {s["session_id"] for s in suggestions}
+        rows = self.conn.execute(dec_sql, dec_params).fetchall()
+        for row in rows:
+            session = self._row_to_session(row)
+            if session.id not in seen_ids and len(session.decisions) >= 2:
+                suggestions.append({
+                    "session_id": session.id,
+                    "title": session.title,
+                    "date": session.start_date,
+                    "reason": "Contains %d key decisions worth reviewing" % len(session.decisions),
+                    "type": "decisions",
+                    "priority": 2,
+                    "decisions": session.decisions,
+                    "summary_preview": session.summary[:300] + "..." if len(session.summary) > 300 else session.summary,
+                })
+                seen_ids.add(session.id)
+
+        # 3. Skill gaps (project expected_skills not used recently)
+        skill_gaps = []
+        if project:
+            proj_row = self.conn.execute(
+                "SELECT expected_skills FROM projects WHERE name = ?",
+                (project,)
+            ).fetchone()
+            if proj_row:
+                expected = json.loads(proj_row["expected_skills"] or "[]")
+                if expected:
+                    recent_skills = self.conn.execute(
+                        """SELECT DISTINCT sk.skill_name
+                           FROM session_skills sk
+                           JOIN sessions s ON sk.session_id = s.id
+                           WHERE s.start_date >= ? AND s.project = ?""",
+                        (cutoff, project)
+                    ).fetchall()
+                    used = {r["skill_name"] for r in recent_skills}
+                    for skill in expected:
+                        if skill not in used:
+                            # Find last time this skill was used
+                            last = self.conn.execute(
+                                """SELECT s.start_date FROM sessions s
+                                   JOIN session_skills sk ON s.id = sk.session_id
+                                   WHERE sk.skill_name = ?
+                                   ORDER BY s.start_date DESC LIMIT 1""",
+                                (skill,)
+                            ).fetchone()
+                            skill_gaps.append({
+                                "skill": skill,
+                                "last_used": last["start_date"] if last else None,
+                                "reason": "Expected in project '%s' but not used in last %d days" % (project, days_back),
+                            })
+
+        # Sort by priority, then recency
+        suggestions.sort(key=lambda s: (s["priority"], s["date"]))
+        # Remove priority field from output, take top N
+        for s in suggestions:
+            del s["priority"]
+        suggestions = suggestions[:limit]
+
+        total_scanned = self.conn.execute(
+            "SELECT COUNT(*) as c FROM sessions WHERE start_date >= ?",
+            (cutoff,)
+        ).fetchone()["c"]
+
+        return {
+            "suggestions": suggestions,
+            "skill_gaps": skill_gaps,
+            "metadata": {
+                "total_sessions_scanned": total_scanned,
+                "days_back": days_back,
+                "suggestions_returned": len(suggestions),
+                "project_filter": project,
+                "persona_filter": persona,
+            }
+        }
+
     # -- Helpers --
 
     def _row_to_session(self, row) -> Session:
