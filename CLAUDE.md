@@ -54,16 +54,15 @@ Knowledge management MCP server for AI projects.
 
 **Completed:**
 - Phase 2 tools: vault_link_doc, vault_unlink_doc, vault_find_related, vault_suggest, vault_export_manifest (commit ddf7f91, 2026-03-22) -- 7 tests passing
-
-**Completed:**
 - Free/Pro tier gating logic: tiers.py + TierEnforcer + vault_tier_status + vault_set_tier tools (35 tests passing, commit TBD, 2026-03-22)
 - Cowork plugin packaging (ron_skills/projectvault-plugin/, ron_skills/projectvault-v0.1.0.plugin, commit TBD, 2026-03-22) -- AWAITING DEBBIE REVIEW
 - Plugin README updated with platform table (Cowork/Code/Chat) and companion product note (2026-03-22)
 - MCP tool-layer test suite: test_mcp_tools.py, 43 tests covering vault lifecycle, doc management, search, inject, tiers (2026-03-22)
 - Bug fix: vault_create and vault_add_doc now return error strings for TierLimitError instead of raising exceptions (2026-03-22)
+- Marketplace listing draft (docs/marketplace_listing.md, 2026-03-22) -- AWAITING DEBBIE REVIEW
 
 **Priority TODOs:**
-1. Marketplace listing for public distribution
+1. Publish marketplace listing after Debbie gives final approval
 
 ### SQL Query Optimizer (v0.1.0) - IN PROGRESS
 SQL optimization tool with analysis and recommendations.
