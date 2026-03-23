@@ -39,6 +39,8 @@ Cross-surface persistent memory for Claude sessions.
 **Priority TODOs:**
 1. Package ConvoVault as a .plugin file for the knowledge-work-plugins marketplace (same pattern as ProjectVault plugin)
 2. Research how to submit plugins to the Claude plugin marketplace (knowledge-work-plugins) -- document the process in docs/PUBLISHING.md
+3. Clean up duplicate/test sessions in sessions.db (leftover "What is ProjectVault?" entries from debugging)
+4. Improve SessionStart hook context quality -- add smarter filtering to prioritize sessions with open questions or decisions over generic ones, reduce noise as session count grows
 
 ## Approvals / Review
 
@@ -61,17 +63,17 @@ Knowledge management MCP server for AI projects.
 **Completed:**
 - Phase 2 tools: vault_link_doc, vault_unlink_doc, vault_find_related, vault_suggest, vault_export_manifest (commit ddf7f91, 2026-03-22) -- 7 tests passing
 - Free/Pro tier gating logic: tiers.py + TierEnforcer + vault_tier_status + vault_set_tier tools (35 tests passing, commit TBD, 2026-03-22)
-- Cowork plugin packaging (ron_skills/projectvault-plugin/, ron_skills/projectvault-v0.1.0.plugin, commit TBD, 2026-03-22) -- AWAITING DEBBIE REVIEW
+- Cowork plugin packaging (ron_skills/projectvault-plugin/, ron_skills/projectvault-v0.1.0.plugin, commit TBD, 2026-03-22) -- **APPROVED**
 - Plugin README updated with platform table (Cowork/Code/Chat) and companion product note (2026-03-22)
 - MCP tool-layer test suite: test_mcp_tools.py, 43 tests covering vault lifecycle, doc management, search, inject, tiers (2026-03-22)
 - Bug fix: vault_create and vault_add_doc now return error strings for TierLimitError instead of raising exceptions (2026-03-22)
-- Marketplace listing draft (docs/marketplace_listing.md, 2026-03-22) -- AWAITING DEBBIE REVIEW
+- Marketplace listing draft (docs/marketplace_listing.md, 2026-03-22) -- **APPROVED**
 
 **Priority TODOs:**
 1. Research and document how to submit ProjectVault plugin to Claude marketplace (knowledge-work-plugins) -- document in docs/PUBLISHING.md
 2. Integration tests for tier enforcement with real MCP client calls
 
-## SQL Query Optimizer (v0.1.0) - IN PROGRESS
+### SQL Query Optimizer (v0.1.0) - IN PROGRESS
 SQL optimization tool with analysis and recommendations.
 - Location: `ron_skills/sql_query_optimizer/`
 - Stack: FastMCP, sqlparse, Python
@@ -82,6 +84,12 @@ SQL optimization tool with analysis and recommendations.
 1. ClawHub skill packaging
 2. Paid API backend (deployment, auth, billing)
 3. Integration tests with real SQL Server queries
+
+## Billing Integration (Future)
+- Stripe sandbox account created (2026-03-22)
+- ProjectVault tiers.py has Free/Pro/Team limits and TierEnforcer ready
+- Next step: wire vault_set_tier to Stripe subscription webhooks
+- Blocked on: marketplace publishing (need to know how billing integrates with the plugin marketplace)
 
 ## Session Workflow
 
@@ -103,6 +111,7 @@ When ending a session:
 - Plain files on disk where possible (easy backup, git-friendly)
 - MCP tools for LLM interface, CLI for human interface
 - stdio transport for both Code and Cowork compatibility
+- Monorepo structure: all products in ron_skills/ under one repo, distributable as separate .plugin files
 
 ## Known Issues / Gotchas
 - MCP SDK v1.26.0 renamed `lifespan_state` to `lifespan_context` (already fixed in ProjectVault)
@@ -112,12 +121,14 @@ When ending a session:
 - Real Claude Code transcripts wrap messages: `{"type":"user","message":{"role":"user",...}}`
 - Never use `2>/dev/null` in hook scripts -- redirect to a log file instead
 - Conda cannot resolve the `mcp` package -- always use standard Python venv
+- git push will fail from Cowork VM (no GitHub credentials) -- Debbie pushes from her Mac
+- Cowork sessions leave .git/*.lock files -- clean with: find .git -name "*.lock" -delete
 
 ## Revenue Strategy
 - Free tier gets users in the door (limited vaults/sessions)
-- Pro tier ($8-9/mo) unlocks unlimited usage via Salable billing
+- Pro tier ($8-9/mo) unlocks unlimited usage via Stripe billing
 - Team/Business tier ($19-20/mo) adds cloud sync and collaboration
-- Distribution: Claude plugin marketplace (primary), GitHub (secondary)
+- Distribution: Claude plugin marketplace (knowledge-work-plugins) primary, GitHub secondary
 - All three products cross-sell each other
 
 ## Debbie's Preferences
