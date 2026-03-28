@@ -28,11 +28,21 @@ Build and ship products that generate $8K/month passive income through Claude pl
 6. [ ] Pin all dependencies: `pip freeze > requirements-lock.txt` for each product
 7. [ ] Run `pip-audit` across all product venvs and resolve any findings
 
+### LoreConvo CLI Fixes
+8. [ ] Add `loreconvo-cli` entry point to pyproject.toml pointing at `src/cli.py` (current `loreconvo` entry point starts the MCP server, not the CLI)
+9. [ ] In `hooks/scripts/auto_save.py`, detect `Skill` tool invocations in transcript: when a `tool_use` block has `name == "Skill"`, extract `input.skill` and record it in `session_skills` as `skill:<skill-name>` (e.g. `skill:langgraph-finance-workflow`). Currently the hook records the raw string `"Skill"` which loses the actual skill name.
+10. [ ] Add `python cli.py skills list` subcommand to list all distinct skill names in `session_skills`, making `skill-history` self-documenting
+
+### Pipeline Improvements
+11. [ ] Add `set_hold_reason(opp_id, reason)` method to PipelineDB -- sets a `hold-reason:<text>` tag and appends a dated note to `open_questions`, matching the pattern used by `reject()`. Makes putting items on hold a clean one-liner.
+12. [ ] Fix LoreConvo README: `export` CLI flags (`--last`, `--format markdown`) don't match the actual CLI signature (`export <session-id>`). Clean up before marketplace publish.
+13. [ ] Fix LoreDocs INSTALL.md: `uvx loredocs` and `loredocs@labyrinth-analytics-claude-plugins` install commands reference a marketplace that isn't live yet. Mark as "coming soon" per doc-sync rules.
+
 ### New Products
-8. [ ] SQL Query Optimizer: ClawHub skill packaging
-9. [ ] SQL Query Optimizer: integration tests with real SQL Server queries
-10. [ ] Build Financial Report Generator skill + FastMCP backend
-11. [ ] Build CSV/Excel Data Transformer skill + FastMCP backend
+14. [ ] SQL Query Optimizer: ClawHub skill packaging
+15. [ ] SQL Query Optimizer: integration tests with real SQL Server queries
+16. [ ] Build Financial Report Generator skill + FastMCP backend
+17. [ ] Build CSV/Excel Data Transformer skill + FastMCP backend
 
 ## Product Research Scout (Scheduled Task)
 - **Task:** `weekly-product-scout` — runs every Monday at 7 AM

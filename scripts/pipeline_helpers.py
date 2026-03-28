@@ -78,6 +78,7 @@ VALID_STATUSES = [
     'architecture-proposed',
     'approved',
     'in-progress',
+    'on-hold',
     'completed',
     'rejected',
     'archived',
