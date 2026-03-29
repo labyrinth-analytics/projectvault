@@ -21,9 +21,13 @@ from typing import Optional
 from dotenv import load_dotenv
 load_dotenv()  # Load .env file before anything reads environment variables
 
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, HTTPException, Depends, Header, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from optimizer import SQLOptimizer
 from credits import CreditManager
@@ -37,6 +41,30 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger("sql_optimizer_api")
 
+# Allowed CORS origins -- set SQL_OPTIMIZER_CORS_ORIGINS env var (comma-separated)
+# Defaults to localhost only for safety. Override in production.
+_raw_origins = os.getenv("SQL_OPTIMIZER_CORS_ORIGINS", "http://localhost:3000,http://localhost:8080")
+ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
+# Rate limiter (uses client IP)
+limiter = Limiter(key_func=get_remote_address)
+
+
+# Security headers middleware
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Adds OWASP-recommended security headers to every response."""
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
+        response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+
 # ---------------------------------------------------------------------------
 # App
 # ---------------------------------------------------------------------------
@@ -46,12 +74,18 @@ app = FastAPI(
     description="Premium SQL optimization powered by AI. Free analysis on ClawHub, full rewrites here.",
 )
 
+# Rate limiter state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+app.add_middleware(SecurityHeadersMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 # ---------------------------------------------------------------------------
@@ -62,7 +96,7 @@ class QueryContext(BaseModel):
     database_engine: Optional[str] = Field(None, description="Engine version (e.g., 'SQL Server 2019', 'PostgreSQL 16')")
 
 class OptimizeRequest(BaseModel):
-    query: str = Field(..., description="The SQL query to optimize", min_length=5)
+    query: str = Field(..., description="The SQL query to optimize", min_length=5, max_length=50000)
     dialect: str = Field("tsql", description="SQL dialect: tsql, mysql, postgresql, sqlite")
     context: Optional[QueryContext] = None
 
@@ -198,7 +232,7 @@ class GenerateKeyResponse(BaseModel):
     message: str
 
 
-async def verify_admin(authorization: str = Header(...)) -> str:
+async def verify_admin(request: Request, authorization: str = Header(...)) -> str:
     """Verify the admin secret from the Authorization header."""
     admin_secret = os.getenv("ADMIN_SECRET")
     if not admin_secret:
@@ -206,23 +240,28 @@ async def verify_admin(authorization: str = Header(...)) -> str:
 
     token = authorization.replace("Bearer ", "").strip()
     if token != admin_secret:
+        client_ip = request.client.host if request.client else "unknown"
+        logger.warning("Admin auth failure from IP=%s", client_ip)
         raise HTTPException(status_code=403, detail="Invalid admin credentials")
 
     return token
 
 
 @app.post("/admin/generate-key", response_model=GenerateKeyResponse)
-async def generate_api_key(request: GenerateKeyRequest, _: str = Depends(verify_admin)):
+@limiter.limit("5/minute")
+async def generate_api_key(request: Request, req: GenerateKeyRequest, _: str = Depends(verify_admin)):
     """Generate a new API key. Requires ADMIN_SECRET."""
-    credits = request.credits if request.plan != "unlimited" else 0
+    client_ip = request.client.host if request.client else "unknown"
+    logger.info("Admin generate-key called from IP=%s plan=%s", client_ip, req.plan)
+    credits = req.credits if req.plan != "unlimited" else 0
     api_key = credit_manager.generate_key(
-        plan=request.plan,
+        plan=req.plan,
         credits=credits,
-        email=request.email,
+        email=req.email,
     )
     return GenerateKeyResponse(
         api_key=api_key,
-        plan=request.plan,
+        plan=req.plan,
         credits=credit_manager.get_credits(api_key),
         message="Save this key -- it cannot be retrieved later.",
     )

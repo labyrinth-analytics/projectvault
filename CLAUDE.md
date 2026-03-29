@@ -35,14 +35,22 @@ Build and ship products that generate $8K/month passive income through Claude pl
 
 ### Pipeline Improvements
 11. [x] Add `set_hold_reason(opp_id, reason)` method to PipelineDB -- done 2026-03-28
-12. [ ] Fix LoreConvo README: `export` CLI flags (`--last`, `--format markdown`) don't match the actual CLI signature (`export <session-id>`). Clean up before marketplace publish.
+12. [x] Fix LoreConvo README: `export` CLI flags verified correct -- CLI does support --last and --format. No fix needed. Confirmed 2026-03-29.
 13. [x] Fix LoreDocs INSTALL.md: marked Options A and B as "coming soon" -- done 2026-03-28
 
+### Security Fixes (SQL Query Optimizer API) — added 2026-03-29
+14. [ ] CRITICAL: Revoke exposed Anthropic API key in `ron_skills/sql_query_optimizer/api/.env` and regenerate. NOTE: .env is gitignored and NOT in git history -- key is on-disk only. Still must revoke at console.anthropic.com.
+15. [x] HIGH: Fix wildcard CORS in `ron_skills/sql_query_optimizer/api/main.py` -- done 2026-03-29 (env-var-driven origin list, allow_credentials=False, restricted methods/headers).
+16. [x] HIGH: Pin exact dependency versions in `ron_skills/sql_query_optimizer/api/requirements.txt` -- done 2026-03-29, added slowapi==0.1.9.
+17. [x] HIGH: Add rate limiting to `/admin/generate-key` endpoint -- done 2026-03-29 (SlowAPI 5/minute, IP logging).
+18. [x] MEDIUM: Add `max_length` to SQL query input field in `OptimizeRequest` model -- done 2026-03-29 (max_length=50000).
+19. [x] MEDIUM: Add security headers middleware -- done 2026-03-29 (HSTS, X-Frame-Options, X-Content-Type-Options, CSP, Referrer-Policy, Cache-Control).
+
 ### New Products
-14. [ ] SQL Query Optimizer: ClawHub skill packaging
-15. [ ] SQL Query Optimizer: integration tests with real SQL Server queries
-16. [ ] Build Financial Report Generator skill + FastMCP backend
-17. [ ] Build CSV/Excel Data Transformer skill + FastMCP backend
+20. [ ] SQL Query Optimizer: ClawHub skill packaging
+21. [ ] SQL Query Optimizer: integration tests with real SQL Server queries
+22. [ ] Build Financial Report Generator skill + FastMCP backend
+23. [ ] Build CSV/Excel Data Transformer skill + FastMCP backend
 
 ## Product Research Scout (Scheduled Task)
 - **Task:** `weekly-product-scout` — runs every Monday at 7 AM
