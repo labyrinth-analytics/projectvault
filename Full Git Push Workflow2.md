@@ -5,9 +5,8 @@ cd ~/projects/side_hustle
 git push origin master
 
 # Public product repos (when you want to publish updates)
-git subtree push --prefix=ron_skills/convovault convovault main
-
-git subtree push --prefix=ron_skills/projectvault projectvault main
+git subtree push --prefix=ron_skills/loreconvo loreconvo main
+git subtree push --prefix=ron_skills/loredocs loredocs main
 
 #If git push origin master fails:
 gh auth switch --user debbie-shapiro  # if labyrinth-analytics is active
