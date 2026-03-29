@@ -104,6 +104,7 @@ Build and ship products that generate $8K/month passive income through Claude pl
   4. Verify version numbers match across: SKILL.md metadata, README.md, product CLAUDE.md, and marketplace listing.
   5. Verify pricing/tier info matches across: INSTALL.md, marketplace listing, and product CLAUDE.md.
   6. If any doc references a marketplace install command, confirm whether that marketplace is actually live. If not, mark the command as "coming soon" or remove it.
+  7. If milestones were completed, features shipped, blockers resolved, or product status changed, update `~/Documents/Claude/Projects/Side Hustle/Project_Ron_Product_Roadmap.html` -- move timeline dots from future/current to active/current, update the "What Changed" changelog, and refresh the "Next 30 Days" section.
 
 ## Session Workflow
 
@@ -119,8 +120,9 @@ When ending a session:
 1. Commit all changes with descriptive messages
 2. The SessionEnd hook auto-saves to LoreConvo (no manual step needed)
 3. Regenerate the pipeline dashboard: `python scripts/generate_pipeline_dashboard.py`
-4. If you created/updated significant docs, add them to LoreDocs too
-5. Move completed TODOs to docs/COMPLETED.md with date and commit hash
+4. If milestones were completed or product status changed, update the product roadmap (see doc-sync checklist item 7)
+5. If you created/updated significant docs, add them to LoreDocs too
+6. Move completed TODOs to docs/COMPLETED.md with date and commit hash
 
 ## Architecture Principles
 - Local-first: all data on user's machine, no cloud dependency for core features

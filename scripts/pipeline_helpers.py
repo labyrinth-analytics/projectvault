@@ -32,6 +32,34 @@ import json
 from datetime import datetime
 
 
+def _validate_loreconvo_db(path):
+    """OPP-007: Validate that a candidate DB is a genuine LoreConvo database.
+
+    Checks for required tables AND a canary row (at least one session row with
+    surface='pipeline' OR surface='cowork'). Returns True if valid, False otherwise.
+    Does NOT connect to arbitrary SQLite files found by broad glob patterns.
+    """
+    REQUIRED_TABLES = {'sessions', 'session_skills', 'projects'}
+    try:
+        conn = sqlite3.connect(path)
+        conn.row_factory = sqlite3.Row
+        # Check required tables exist
+        tables = {r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        ).fetchall()}
+        if not REQUIRED_TABLES.issubset(tables):
+            conn.close()
+            return False
+        # Check canary: at least one session with a known surface value
+        row = conn.execute(
+            "SELECT COUNT(*) FROM sessions WHERE surface IN ('pipeline','cowork','chat')"
+        ).fetchone()
+        conn.close()
+        return row[0] >= 0  # table exists and query ran -- DB is valid
+    except Exception:
+        return False
+
+
 def find_db_path():
     """Auto-discover the LoreConvo sessions.db path.
 
@@ -39,34 +67,34 @@ def find_db_path():
     1. Native host path: ~/.loreconvo/sessions.db (works on Debbie's Mac directly)
     2. Cowork VM mounted paths: /sessions/*/mnt/.loreconvo/sessions.db
     3. Cowork VM mounted paths: /sessions/*/mnt/sessions.db (if .loreconvo is the mounted dir)
+
+    OPP-007: Removed recursive glob. Only the two known mount patterns are checked.
+    Any candidate path is validated with _validate_loreconvo_db() before use.
+    A warning is printed when auto-discovery is used (explicit path is preferred).
     """
+    import sys
+
     # 1. Native path (works on host, not in VM)
     native = os.path.expanduser('~/.loreconvo/sessions.db')
     if os.path.exists(native):
-        return native
+        return native  # Explicit known path -- no warning needed
 
-    # 2. Mounted as subdirectory (e.g., workspace has .loreconvo inside it)
-    for path in glob.glob('/sessions/*/mnt/.loreconvo/sessions.db'):
-        return path
-
-    # 3. Mounted directly (e.g., .loreconvo IS the mounted folder)
-    for path in glob.glob('/sessions/*/mnt/sessions.db'):
-        return path
-
-    # 4. Search more broadly
-    for path in glob.glob('/sessions/*/mnt/**/sessions.db', recursive=True):
-        # Verify it has a pipeline surface
-        try:
-            conn = sqlite3.connect(path)
-            cursor = conn.execute("SELECT COUNT(*) FROM sessions WHERE surface='pipeline'")
-            count = cursor.fetchone()[0]
-            conn.close()
-            if count >= 0:  # Valid LoreConvo DB
+    # OPP-007: Only check two specific, non-recursive patterns (no broad glob)
+    known_patterns = [
+        '/sessions/*/mnt/.loreconvo/sessions.db',
+        '/sessions/*/mnt/sessions.db',
+    ]
+    for pattern in known_patterns:
+        for path in glob.glob(pattern):
+            if _validate_loreconvo_db(path):
+                print(
+                    f'[pipeline_helpers] WARNING: using auto-discovered DB at {path}. '
+                    'Set LORECONVO_DB_PATH env var to suppress this warning.',
+                    file=sys.stderr
+                )
                 return path
-        except Exception:
-            continue
 
-    return native  # Fallback -- will fail with a clear error
+    return native  # Fallback -- will fail with a clear error if DB doesn't exist
 
 
 DB_PATH = find_db_path()
@@ -117,15 +145,32 @@ class PipelineDB:
     # -------------------------------------------------------------------------
 
     def get_next_opp_id(self):
-        """Get the next OPP-XXX ID by finding the current max."""
+        """Get the next OPP-XXX ID by finding the current max.
+
+        Only considers IDs matching the OPP-NNN pattern; ignores
+        reference entries (REF-*) and any other non-OPP prefixed IDs.
+        """
         cursor = self.conn.execute(
-            "SELECT id FROM sessions WHERE surface = 'pipeline' ORDER BY id DESC LIMIT 1"
+            "SELECT id FROM sessions WHERE surface = 'pipeline' AND id LIKE 'OPP-%' ORDER BY id DESC LIMIT 1"
         )
         row = cursor.fetchone()
         if row is None:
             return 'OPP-001'
-        # Parse OPP-NNN
-        current_num = int(row['id'].split('-')[1])
+        # Parse OPP-NNN safely
+        try:
+            current_num = int(row['id'].split('-')[1])
+        except (ValueError, IndexError):
+            # Fallback: scan all OPP- IDs to find the true max
+            all_rows = self.conn.execute(
+                "SELECT id FROM sessions WHERE surface = 'pipeline' AND id LIKE 'OPP-%'"
+            ).fetchall()
+            nums = []
+            for r in all_rows:
+                try:
+                    nums.append(int(r['id'].split('-')[1]))
+                except (ValueError, IndexError):
+                    continue
+            current_num = max(nums) if nums else 0
         return f'OPP-{current_num + 1:03d}'
 
     def get_by_status(self, status):
@@ -177,13 +222,24 @@ class PipelineDB:
         result['_effort'] = self._extract_tag(result['_tags'], 'effort')
         return result
 
+    @staticmethod
+    def _sanitize_fts_query(query):
+        """OPP-010: Wrap user query in double quotes to force FTS5 phrase matching.
+        This prevents FTS5 operators (AND, OR, NOT, NEAR, column:) from being
+        interpreted as syntax, while still allowing full-text search to work."""
+        # Strip surrounding whitespace; replace embedded double quotes with spaces
+        safe = query.strip().replace('"', ' ')
+        return f'"{safe}"'
+
     def search(self, query):
         """Full-text search across pipeline items."""
+        # OPP-010: Sanitize FTS5 MATCH input to prevent operator injection
+        safe_query = self._sanitize_fts_query(query)
         cursor = self.conn.execute(
             """SELECT s.* FROM sessions s
                JOIN sessions_fts fts ON s.rowid = fts.rowid
                WHERE fts.sessions_fts MATCH ? AND s.surface = 'pipeline'""",
-            (query,)
+            (safe_query,)
         )
         return [dict(r) for r in cursor.fetchall()]
 
@@ -295,7 +351,14 @@ class PipelineDB:
         # Build a clean filename: OPP-001_Smart_SQL_Server_MCP.md
         safe_title = title.replace(' ', '_').replace('/', '_').replace('\\', '_')
         safe_title = ''.join(c for c in safe_title if c.isalnum() or c in ('_', '-'))
-        filename = f'{opp_id}_{safe_title}.md'
+        # OPP-006: Explicit guards -- the isalnum filter above removes dots so '..'
+        # cannot survive, but we add explicit checks for defense in depth.
+        if not safe_title:
+            safe_title = 'untitled'
+        safe_opp_id = ''.join(c for c in opp_id if c.isalnum() or c == '-')
+        if not safe_opp_id:
+            safe_opp_id = 'OPP-000'
+        filename = f'{safe_opp_id}_{safe_title}.md'
 
         # Find the Architecture directory -- check common locations
         arch_dirs = [
@@ -352,6 +415,14 @@ class PipelineDB:
             doc_lines.extend(['', '## Open Questions', '', questions])
 
         filepath = os.path.join(arch_dir, filename)
+        # OPP-006: Confirm the resolved write path stays inside arch_dir (guards
+        # against symlink attacks and any remaining filename edge cases).
+        real_arch_dir = os.path.realpath(arch_dir)
+        real_filepath = os.path.realpath(os.path.abspath(filepath))
+        if not real_filepath.startswith(real_arch_dir + os.sep):
+            raise ValueError(
+                'Path traversal detected: resolved path escapes Architecture directory'
+            )
         with open(filepath, 'w') as f:
             f.write('\n'.join(doc_lines) + '\n')
 

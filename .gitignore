@@ -28,3 +28,9 @@ Thumbs.db
 .venv_test/
 .claude/
 .mcp.json
+
+# Log files (OPP-008: may contain session metadata -- never commit)
+*.log
+*.log.1
+*.log.2
+*.log.3
