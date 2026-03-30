@@ -63,7 +63,7 @@ cd api/
 pip install -r requirements.txt
 cp .env.example .env
 # Edit .env with your ANTHROPIC_API_KEY
-uvicorn main:app --reload
+uvicorn main:app --reload  # NOTE: --reload is for development only. Remove for production.
 # Visit http://localhost:8000/docs to see the API
 ```
 

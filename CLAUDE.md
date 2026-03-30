@@ -20,12 +20,16 @@ Build and ship products that generate $8K/month passive income through Claude pl
 ### Rebrand Finishing (Lore Product Family)
 1. [x] Add migration script for existing users (move DB files from old paths to new) -- done 2026-03-27, scripts/migrate_lore.py
 2. [x] Update revenue projection Excel with new names -- done 2026-03-27, docs/LoreConvo_Revenue_Projection.xlsx
-3. [ ] Update BSL 1.1 license files with new product names (NOTE: no BSL files found in repo -- both products use MIT in pyproject.toml. Debbie to decide if BSL is still the plan)
+3. [ ] Update BSL 1.1 license files with new product names (BLOCKED: no BSL files found in repo -- both products use MIT in pyproject.toml. Debbie to decide if BSL is still the plan)
 4. [x] Rebuild .plugin files (loreconvo-v0.3.0.plugin, loredocs-v0.1.0.plugin) -- done 2026-03-27, both now use Lore names internally
 
-### Infrastructure
-5. [ ] Fix side_hustle venv isolation (may be running under conda base instead of project .venv)
-6. [ ] Pin all dependencies: `pip freeze > requirements-lock.txt` for each product
+### Infrastructure (PRIORITY — do these before New Products)
+5. [ ] Create proper .venv for each product that is missing one. Current state:
+   - LoreConvo: has .venv + requirements.txt [OK]
+   - LoreDocs: has .venv but NO requirements.txt -- generate with `pip freeze > requirements.txt` from its .venv
+   - SQL Query Optimizer: has api/requirements.txt but NO .venv -- create one with `python -m venv .venv`, install from api/requirements.txt
+   - Root side_hustle/: NO .venv -- not needed if each product has its own
+6. [ ] Pin all dependencies: for each product, activate its .venv and run `pip freeze > requirements-lock.txt` to capture exact versions
 7. [ ] Run `pip-audit` across all product venvs and resolve any findings
 
 ### LoreConvo CLI Fixes

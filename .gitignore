@@ -29,6 +29,10 @@ Thumbs.db
 .claude/
 .mcp.json
 
+# SQLite databases (may contain session/document data)
+*.db
+*.sqlite
+
 # Log files (OPP-008: may contain session metadata -- never commit)
 *.log
 *.log.1

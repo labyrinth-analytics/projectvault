@@ -12,6 +12,7 @@ Revenue model: credit-based. Each optimization call costs 1 credit.
 Users buy credit packs via Stripe ($9.99/50 credits, $29.99/200 credits, $79.99/unlimited monthly).
 """
 
+import hmac
 import os
 import json
 import logging
@@ -154,7 +155,8 @@ async def health_check():
 
 
 @app.post("/v1/optimize", response_model=OptimizeResponse)
-async def optimize_query(request: OptimizeRequest, api_key: str = Depends(verify_api_key)):
+@limiter.limit("30/minute")
+async def optimize_query(request: Request, req: OptimizeRequest, api_key: str = Depends(verify_api_key)):
     """
     Optimize a SQL query. Costs 1 credit per call.
 
@@ -171,21 +173,21 @@ async def optimize_query(request: OptimizeRequest, api_key: str = Depends(verify
 
     # Validate dialect
     valid_dialects = {"tsql", "mysql", "postgresql", "sqlite"}
-    dialect = request.dialect.lower()
+    dialect = req.dialect.lower()
     if dialect not in valid_dialects:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid dialect '{request.dialect}'. Must be one of: {', '.join(sorted(valid_dialects))}",
+            detail=f"Invalid dialect '{req.dialect}'. Must be one of: {', '.join(sorted(valid_dialects))}",
         )
 
     # Run optimization
     logger.info("Optimizing query for key=%s..., dialect=%s", api_key[:8], dialect)
     try:
         result = await optimizer.optimize(
-            query=request.query,
+            query=req.query,
             dialect=dialect,
-            table_info=request.context.table_info if request.context else None,
-            database_engine=request.context.database_engine if request.context else None,
+            table_info=req.context.table_info if req.context else None,
+            database_engine=req.context.database_engine if req.context else None,
         )
     except Exception as e:
         logger.error("Optimization failed: %s", str(e))
@@ -196,7 +198,7 @@ async def optimize_query(request: OptimizeRequest, api_key: str = Depends(verify
     credits_remaining = credit_manager.get_credits(api_key)
 
     return OptimizeResponse(
-        original_query=request.query,
+        original_query=req.query,
         optimized_query=result["optimized_query"],
         dialect=dialect,
         changes=result["changes"],
@@ -208,7 +210,8 @@ async def optimize_query(request: OptimizeRequest, api_key: str = Depends(verify
 
 
 @app.get("/v1/credits", response_model=CreditsResponse)
-async def check_credits(api_key: str = Depends(verify_api_key)):
+@limiter.limit("60/minute")
+async def check_credits(request: Request, api_key: str = Depends(verify_api_key)):
     """Check remaining credits for an API key."""
     return CreditsResponse(
         api_key=f"{api_key[:8]}...",
@@ -239,7 +242,7 @@ async def verify_admin(request: Request, authorization: str = Header(...)) -> st
         raise HTTPException(status_code=503, detail="Admin endpoint not configured")
 
     token = authorization.replace("Bearer ", "").strip()
-    if token != admin_secret:
+    if not hmac.compare_digest(token, admin_secret):
         client_ip = request.client.host if request.client else "unknown"
         logger.warning("Admin auth failure from IP=%s", client_ip)
         raise HTTPException(status_code=403, detail="Invalid admin credentials")

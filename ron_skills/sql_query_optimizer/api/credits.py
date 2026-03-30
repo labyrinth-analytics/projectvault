@@ -88,7 +88,8 @@ class CreditManager:
         }
         self._save(data)
 
-        logger.info("Generated new %s key for %s", plan, email or "unknown")
+        masked_email = (email[:3] + "***") if email else "unknown"
+        logger.info("Generated new %s key for %s", plan, masked_email)
         return api_key
 
     def is_valid_key(self, api_key: str) -> bool:

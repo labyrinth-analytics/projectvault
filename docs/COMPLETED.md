@@ -67,6 +67,18 @@ Both names TESS-clean and Google-clean. 24 of 28 items completed.
 
 - [x] Backend built: analyzer + server, 34 tests passing (commit adfd10d, 2026-03-22)
 
+## Security Hardening - Brock Report Fixes (2026-03-30)
+
+- [x] SEC-002: Timing-safe admin token comparison using hmac.compare_digest (main.py)
+- [x] SEC-004: Mask email PII in logs -- credits.py now logs masked emails
+- [x] SEC-005: Rate limits on /v1/optimize (30/min) and /v1/credits (60/min)
+- [x] SEC-007: Added *.db and *.sqlite patterns to .gitignore
+- [x] SEC-008: Added --reload development-only warning to QUICKSTART.md
+
+## QA Fix - Meg Report (2026-03-30)
+
+- [x] LOW: Fixed auto_save.py Skill tool input None handling -- now uses `(block.get("input") or {})` with isinstance check
+
 ## Infrastructure
 
 - [x] Stripe sandbox account created (2026-03-22)
