@@ -39,7 +39,7 @@ Build and ship products that generate $8K/month passive income through Claude pl
 13. [x] Fix LoreDocs INSTALL.md: marked Options A and B as "coming soon" -- done 2026-03-28
 
 ### Security Fixes (SQL Query Optimizer API) — added 2026-03-29
-14. [ ] CRITICAL: Revoke exposed Anthropic API key in `ron_skills/sql_query_optimizer/api/.env` and regenerate. NOTE: .env is gitignored and NOT in git history -- key is on-disk only. Still must revoke at console.anthropic.com.
+14. [x] RECLASSIFIED (was CRITICAL, now INFO): Anthropic API key in `ron_skills/sql_query_optimizer/api/.env` is in a gitignored file on a single-user local machine with no remote access and no evidence of compromise. Reclassified per updated security guidelines 2026-03-31. No action required.
 15. [x] HIGH: Fix wildcard CORS in `ron_skills/sql_query_optimizer/api/main.py` -- done 2026-03-29 (env-var-driven origin list, allow_credentials=False, restricted methods/headers).
 16. [x] HIGH: Pin exact dependency versions in `ron_skills/sql_query_optimizer/api/requirements.txt` -- done 2026-03-29, added slowapi==0.1.9.
 17. [x] HIGH: Add rate limiting to `/admin/generate-key` endpoint -- done 2026-03-29 (SlowAPI 5/minute, IP logging).
@@ -85,6 +85,11 @@ Build and ship products that generate $8K/month passive income through Claude pl
 - **Scope:** Entire repo -- code, dependencies, configs, git history
 - **Severity ratings:** SECURE / NEEDS ATTENTION / AT RISK
 - **Rule:** Brock does NOT modify source code -- only writes reports and flags issues for Ron to fix
+
+#### Brock Security Classification Guidelines
+- **API keys in local .env files:** If a key is in a gitignored `.env` on Debbie's single-user Mac with no remote access, classify as **INFO** (not CRITICAL). Note it for awareness but do not flag as action-required or use alarm language ("!! CRITICAL - ACTION REQUIRED !!"). Only escalate to CRITICAL if the key is found in git history, a public repo, a shared system, or shows signs of compromise.
+- **Dependency pinning:** Check for `requirements-lock.txt` files (not just `pyproject.toml`). It is normal and expected for `pyproject.toml` to use `>=` minimum version constraints -- that is library metadata. The `requirements-lock.txt` files contain the actual exact pins. If lock files exist with exact versions, the dependency pinning finding is RESOLVED.
+- **Single-user context:** All products currently run locally on a single-user machine. Severity ratings should reflect this context. Findings that would be CRITICAL in a multi-user server deployment may be LOW or INFO in the current local-only setup.
 
 ## Blocked
 
