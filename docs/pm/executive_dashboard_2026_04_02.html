@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Side Hustle Executive Dashboard - 2026-04-02</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f7fafc; color: #2d3748; line-height: 1.6; padding: 20px; }
+.dashboard { max-width: 1200px; margin: 0 auto; }
+
+/* Header */
+.header { display: flex; justify-content: space-between; align-items: center; background: #1a202c; color: white; padding: 20px 30px; border-radius: 12px; margin-bottom: 24px; }
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+.header .date { font-size: 14px; color: #a0aec0; margin-top: 4px; }
+.posture-badge { display: inline-block; padding: 8px 20px; border-radius: 20px; font-weight: 700; font-size: 13px; letter-spacing: 1px; }
+.posture-review { background: #ed8936; color: white; }
+.posture-clear { background: #48bb78; color: white; }
+.posture-action { background: #fc8181; color: white; }
+
+/* Section */
+.section { background: white; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+.section-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; cursor: pointer; user-select: none; border-bottom: 1px solid #e2e8f0; }
+.section-header:hover { background: #f7fafc; }
+.section-header h2 { font-size: 16px; font-weight: 600; }
+.section-header .toggle { font-size: 18px; color: #a0aec0; transition: transform 0.2s; }
+.section-header .toggle.collapsed { transform: rotate(-90deg); }
+.section-body { padding: 20px 24px; }
+.section-body.hidden { display: none; }
+.section-summary { font-size: 13px; color: #718096; margin-left: 12px; }
+
+/* Cards */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; border-left: 4px solid #a0aec0; }
+.card-red { border-left-color: #fc8181; background: #fff5f5; }
+.card-orange { border-left-color: #ed8936; background: #fffaf0; }
+.card-green { border-left-color: #48bb78; background: #f0fff4; }
+.card-blue { border-left-color: #3182ce; background: #ebf8ff; }
+.card-gray { border-left-color: #a0aec0; background: #f7fafc; }
+.card h3 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+.card p { font-size: 13px; color: #4a5568; }
+.card .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; margin-right: 4px; }
+.tag-red { background: #fed7d7; color: #c53030; }
+.tag-orange { background: #feebc8; color: #c05621; }
+.tag-green { background: #c6f6d5; color: #276749; }
+.tag-blue { background: #bee3f8; color: #2b6cb0; }
+.tag-gray { background: #e2e8f0; color: #4a5568; }
+
+/* Agent Summary */
+.agent-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.agent-row:last-child { border-bottom: none; }
+.agent-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white; margin-right: 14px; flex-shrink: 0; }
+.agent-details { flex: 1; }
+.agent-name { font-weight: 600; font-size: 14px; }
+.agent-meta { font-size: 12px; color: #718096; margin-top: 2px; }
+.agent-status { flex-shrink: 0; }
+
+/* Pipeline Board */
+.pipeline-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.pipeline-col { background: #f7fafc; border-radius: 8px; padding: 12px; min-height: 100px; }
+.pipeline-col h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #718096; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+.pipeline-item { background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin-bottom: 8px; font-size: 12px; }
+.pipeline-item .item-title { font-weight: 600; margin-bottom: 4px; }
+.pipeline-item .item-meta { color: #718096; font-size: 11px; }
+
+/* Progress bars */
+.progress-row { margin-bottom: 16px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+.progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+.fill-green { background: #48bb78; }
+.fill-blue { background: #3182ce; }
+.fill-orange { background: #ed8936; }
+
+/* Cross-agent findings */
+.finding { padding: 12px; margin-bottom: 10px; border-radius: 6px; font-size: 13px; }
+.finding-stale { background: #f0fff4; border: 1px solid #c6f6d5; }
+.finding-escalate { background: #fff5f5; border: 1px solid #fed7d7; }
+.finding-info { background: #ebf8ff; border: 1px solid #bee3f8; }
+.finding-discrepancy { background: #fffaf0; border: 1px solid #feebc8; }
+.finding strong { font-weight: 600; }
+
+/* Schedule table */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 8px 12px; background: #f7fafc; font-weight: 600; border-bottom: 2px solid #e2e8f0; }
+td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; }
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.dot-green { background: #48bb78; }
+.dot-orange { background: #ed8936; }
+.dot-red { background: #fc8181; }
+.dot-gray { background: #a0aec0; }
+
+/* Footer */
+.footer { text-align: center; padding: 20px; color: #a0aec0; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="dashboard">
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <h1>SIDE HUSTLE EXECUTIVE DASHBOARD</h1>
+    <div class="date">Wednesday, April 2, 2026 | Generated by Jacqueline (PM Agent)</div>
+  </div>
+  <span class="posture-badge posture-review">REVIEW NEEDED</span>
+</div>
+
+<!-- ATTENTION NEEDED -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div><h2>Attention Needed</h2><span class="section-summary">3 items for Debbie</span></div>
+    <span class="toggle">&#9660;</span>
+  </div>
+  <div class="section-body">
+    <div class="card-grid">
+      <div class="card card-orange">
+        <h3>SEC-012: CVEs in anthropic SDK (Brock)</h3>
+        <p>Two CVEs found in <code>anthropic==0.86.0</code> (SQL Query Optimizer): CVE-2026-34450 (world-readable memory files) and CVE-2026-34452 (async symlink escape). <strong>Fix: one-line bump to 0.87.0.</strong> Low actual risk on single-user Mac, but straightforward fix for Ron's next session.</p>
+        <div style="margin-top:8px"><span class="tag tag-orange">MEDIUM</span><span class="tag tag-blue">Dependencies</span></div>
+      </div>
+
+      <div class="card card-orange">
+        <h3>MEG-036: Test Isolation Bug (Meg)</h3>
+        <p>2 tests fail in aggregate runs due to cross-file test pollution in SQL Optimizer credit tests. <code>test_credits_concurrency.py</code> relies on <code>os.environ</code> which doesn't propagate to already-imported module constants. Meg wrote isolated replacement tests. Ron should fix the original file.</p>
+        <div style="margin-top:8px"><span class="tag tag-orange">MEDIUM</span><span class="tag tag-blue">Test Reliability</span></div>
+      </div>
+
+      <div class="card card-blue">
+        <h3>Stripe Account Setup (Debbie)</h3>
+        <p>Credit union account creation in progress (technical issue 3/31). Expected ready 4/2 or 4/3. Once open: complete Stripe business verification, add payout destination, switch to Live mode. This unblocks marketplace payment collection.</p>
+        <div style="margin-top:8px"><span class="tag tag-blue">Debbie Action</span><span class="tag tag-gray">By Friday 4/3</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERNIGHT SUMMARY -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div><h2>Overnight Summary</h2><span class="section-summary">5 agents ran, 4 commits, 286 tests, 2 new security findings</span></div>
+    <span class="toggle collapsed">&#9660;</span>
+  </div>
+  <div class="section-body hidden">
+
+    <!-- Ron -->
+    <div class="agent-row">
+      <div class="agent-icon" style="background:#3182ce">R</div>
+      <div class="agent-details">
+        <div class="agent-name">Ron (Builder)</div>
+        <div class="agent-meta">
+          Completed 7 TODOs (#23-26, #28-29, plus plugin license fix). Key work: synced pipeline decisions to PipelineDB, fixed LoreConvo plugin.json hook structure, added CLAUDE.md setup sections and verify-install sections to both product READMEs, rewrote COWORK_RESTORE.md, created PIPELINE_AGENT_GUIDE.md. Also added Pro-tier env vars to plugin .mcp.json files and LOREDOCS_PRO env override to tiers.py.
+        </div>
+      </div>
+      <div class="agent-status"><span class="tag tag-green">7 TODOs Done</span></div>
+    </div>
+
+    <!-- Meg -->
+    <div class="agent-row">
+      <div class="agent-icon" style="background:#48bb78">M</div>
+      <div class="agent-details">
+        <div class="agent-name">Meg (QA Engineer)</div>
+        <div class="agent-meta">
+          YELLOW rating. 286 tests total (+25 from yesterday), 286 passing, 2 pre-existing failures detected (MEG-036: test isolation). Wrote 15 new tests: 10 for LoreDocs env override, 5 for SQL Optimizer credit isolation. Doc verification clean for LoreConvo/LoreDocs. Security spot check: SECURE.
+        </div>
+      </div>
+      <div class="agent-status"><span class="tag tag-orange">YELLOW</span></div>
+    </div>
+
+    <!-- Brock -->
+    <div class="agent-row">
+      <div class="agent-icon" style="background:#e53e3e">B</div>
+      <div class="agent-details">
+        <div class="agent-name">Brock (Cybersecurity Expert)</div>
+        <div class="agent-meta">
+          NEEDS ATTENTION. 2 new findings: SEC-012 (MEDIUM, CVEs in anthropic 0.86.0, fix = bump to 0.87.0) and SEC-013 (LOW, SQL Optimizer missing product-level .gitignore). LoreConvo and LoreDocs dep audits clean (0 CVEs). OWASP review all PASS. 7 cumulative resolved findings.
+        </div>
+      </div>
+      <div class="agent-status"><span class="tag tag-orange">NEEDS ATTENTION</span></div>
+    </div>
+
+    <!-- Madison -->
+    <div class="agent-row">
+      <div class="agent-icon" style="background:#9f7aea">Ma</div>
+      <div class="agent-details">
+        <div class="agent-name">Madison (Content Marketer)</div>
+        <div class="agent-meta">
+          First run completed successfully (4/1). Produced: blog draft "Why Your Claude Sessions Start From Zero" (LoreConvo-focused, ~1200 words), email promo template, and 8-week content calendar. All saved to docs/marketing/. Ready for Debbie review.
+        </div>
+      </div>
+      <div class="agent-status"><span class="tag tag-green">First Run OK</span></div>
+    </div>
+
+    <!-- Scout / Gina -->
+    <div class="agent-row">
+      <div class="agent-icon" style="background:#a0aec0">S/G</div>
+      <div class="agent-details">
+        <div class="agent-name">Scout / Gina</div>
+        <div class="agent-meta">
+          Scout runs Mondays (last run: 3/30 -- 5 new opportunities OPP-012 to OPP-016). Gina runs Wed + Sat (next run: today 4/2 Wed or Sat 4/4). No new activity since last dashboard.
+        </div>
+      </div>
+      <div class="agent-status"><span class="tag tag-gray">Not Scheduled</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PIPELINE STATUS -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div><h2>Pipeline Status</h2><span class="section-summary">16 items: 4 on-hold, 3 in-review, 3 approved, 6 completed</span></div>
+    <span class="toggle collapsed">&#9660;</span>
+  </div>
+  <div class="section-body hidden">
+    <div class="pipeline-board">
+
+      <div class="pipeline-col">
+        <h4>On Hold (4)</h4>
+        <div class="pipeline-item">
+          <div class="item-title">OPP-001: Smart SQL Server MCP</div>
+          <div class="item-meta">No local SQL Server</div>
+        </div>
+        <div class="pipeline-item">
+          <div class="item-title">OPP-005: TabularContext Library</div>
+          <div class="item-meta">Fold into OPP-001</div>
+        </div>
+        <div class="pipeline-item">
+          <div class="item-title">OPP-012: SSIS Package Analyzer</div>
+          <div class="item-meta">No local SQL Server</div>
+        </div>
+        <div class="pipeline-item">
+          <div class="item-title">OPP-014: Schema Diff MCP</div>
+          <div class="item-meta">No local SQL Server</div>
+        </div>
+      </div>
+
+      <div class="pipeline-col">
+        <h4>Approved for Review (3)</h4>
+        <div class="pipeline-item">
+          <div class="item-title">OPP-015: Data Catalog Lite MCP</div>
+          <div class="item-meta"><span class="tag tag-blue">P1</span> Awaiting Gina</div>
+        </div>
+        <div class="pipeline-item">
+          <div class="item-title">OPP-013: Pipeline Test Harness</div>
+          <div class="item-meta"><span class="tag tag-blue">P2</span> Awaiting Gina</div>
+        </div>
+        <div class="pipeline-item">
+          <div class="item-title">OPP-016: ETL Pattern Library</div>
+          <div class="item-meta"><span class="tag tag-blue">P3</span> Awaiting Gina</div>
+        </div>
+      </div>
+
+      <div class="pipeline-col">
+        <h4>Approved (3)</h4>
+        <div class="pipeline-item">
+          <div class="item-title">OPP-002: AI Cost Attribution</div>
+          <div class="item-meta">Architecture done</div>
+        </div>
+        <div class="pipeline-item">
+          <div class="item-title">OPP-003: LorePrompts</div>
+          <div class="item-meta">$10/mo | Architecture done</div>
+        </div>
+        <div class="pipeline-item">
+          <div class="item-title">OPP-004: LoreScope</div>
+          <div class="item-meta">MCP Token Profiler</div>
+        </div>
+      </div>
+
+      <div class="pipeline-col">
+        <h4>Completed (6)</h4>
+        <div class="pipeline-item">
+          <div class="item-title">OPP-006 to OPP-011</div>
+          <div class="item-meta">Security fixes (pipeline_helpers, LoreDocs, hooks)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TODO TRACKER -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div><h2>TODO Tracker</h2><span class="section-summary">Ron: 27/33 done (82%) | Debbie: 2/5 done (40%)</span></div>
+    <span class="toggle collapsed">&#9660;</span>
+  </div>
+  <div class="section-body hidden">
+
+    <div class="progress-row">
+      <div class="progress-label"><span>Ron TODOs</span><span>27 / 33 (82%)</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-green" style="width:82%"></div></div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <h3 style="font-size:14px; margin-bottom:8px;">Ron -- Next Up</h3>
+      <div class="card card-blue" style="margin-bottom:8px">
+        <h3>#22: Build self-hosted GitHub marketplace repo</h3>
+        <p>Revenue blocker. Package plugins for distribution, create install instructions, integrate Stripe billing. labyrinth-analytics/claude-plugins.</p>
+        <span class="tag tag-blue">PRIORITY</span>
+      </div>
+      <div class="card card-blue" style="margin-bottom:8px">
+        <h3>#27: Build /lore-onboard skill</h3>
+        <p>First-time user setup wizard: verify MCP server, add CLAUDE.md snippet, test save/load, confirm hooks.</p>
+        <span class="tag tag-blue">UX</span>
+      </div>
+      <div class="card card-gray" style="margin-bottom:8px">
+        <h3>#30-33: New Products</h3>
+        <p>SQL Optimizer packaging (on hold), integration tests, Financial Report Generator, CSV/Excel Transformer.</p>
+        <span class="tag tag-gray">Blocked/Future</span>
+      </div>
+    </div>
+
+    <div class="progress-row">
+      <div class="progress-label"><span>Debbie TODOs</span><span>2 / 5 (40%)</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-orange" style="width:40%"></div></div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <h3 style="font-size:14px; margin-bottom:8px;">Debbie -- Pending</h3>
+      <div class="card card-orange" style="margin-bottom:8px">
+        <h3>#1: File USPTO trademark for LoreConvo ($350)</h3>
+        <p>Class 009. Names TESS-clean and Google-clean.</p>
+      </div>
+      <div class="card card-orange" style="margin-bottom:8px">
+        <h3>#2: File USPTO trademark for LoreDocs ($350)</h3>
+        <p>Class 009. Names TESS-clean and Google-clean.</p>
+      </div>
+      <div class="card card-blue" style="margin-bottom:8px">
+        <h3>#4: Review rebuilt .plugin files</h3>
+        <p>Deferred until after BSL license changes complete (done) and plugin rebuild (done). Ready for review.</p>
+      </div>
+      <div class="card card-orange" style="margin-bottom:8px">
+        <h3>#5: Activate live Stripe account</h3>
+        <p>Business verification, bank account, EIN. Credit union account in progress. Expected 4/2-4/3.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:14px; margin-bottom:8px;">Blocked Items</h3>
+    <table>
+      <tr><th>Item</th><th>Blocked On</th><th>Unblocked By</th></tr>
+      <tr><td>Stripe billing integration</td><td>Marketplace not built + Stripe live account</td><td>Ron builds marketplace + Debbie activates Stripe</td></tr>
+      <tr><td>SQL Optimizer paid API</td><td>Marketplace + billing</td><td>Marketplace + billing resolved</td></tr>
+      <tr><td>SQL Server-dependent products (OPP-001, 012, 014)</td><td>No local SQL Server installation</td><td>Debbie installs SQL Server locally</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- CROSS-AGENT FINDINGS -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div><h2>Cross-Agent Findings</h2><span class="section-summary">3 findings from cross-validation</span></div>
+    <span class="toggle collapsed">&#9660;</span>
+  </div>
+  <div class="section-body hidden">
+
+    <div class="finding finding-info">
+      <strong>[CONSISTENT] Meg and Brock agree on SQL Optimizer status.</strong>
+      Meg's MEG-036 (test isolation) and Brock's SEC-006 (CreditManager race condition) both point to the same underlying issue: SQL Optimizer credit management needs file locking or SQLite migration. These are not urgent (product is on hold) but should be addressed before any production deployment.
+    </div>
+
+    <div class="finding finding-info">
+      <strong>[CONSISTENT] Brock classification follows guidelines.</strong>
+      SEC-001 (API key in local .env) correctly classified as INFO per the Security Classification Guidelines in CLAUDE.md. SEC-012 (CVE in anthropic SDK) correctly rated MEDIUM with note about low actual risk on single-user Mac. No over-escalation detected.
+    </div>
+
+    <div class="finding finding-discrepancy">
+      <strong>[NOTE] Brock SEC-012 is new upstream CVE, not a Ron regression.</strong>
+      The two CVEs in anthropic==0.86.0 were newly disclosed -- not introduced by any Ron code change. The version was previously pinned and passing pip-audit (as of 3/31). Ron should bump to 0.87.0 in his next session. One-line fix, no urgency given product is on hold.
+    </div>
+
+    <div class="finding finding-info">
+      <strong>[VALIDATED] Ron's committed work matches CLAUDE.md TODO updates.</strong>
+      TODOs #23-26, #28-29 all marked done in CLAUDE.md with matching entries in COMPLETED.md. Git staged changes include the corresponding file modifications (plugin.json, READMEs, COWORK_RESTORE.md, PIPELINE_AGENT_GUIDE.md). No discrepancy between claimed and actual work.
+    </div>
+
+    <div class="finding finding-info">
+      <strong>[VALIDATED] requirements-lock.txt files exist.</strong>
+      Brock's dependency pinning finding SEC-003 was resolved on 3/31. LoreConvo and LoreDocs both have requirements-lock.txt with exact pins, confirmed passing 0 CVEs. SQL Optimizer uses requirements.txt with exact pins.
+    </div>
+
+    <div class="finding finding-info">
+      <strong>[NOTE] Madison's first run successful.</strong>
+      Blog draft, email template, and 8-week content calendar all generated cleanly. Non-code content, not QA'd by Meg (correct per scope). All content is in draft status awaiting Debbie's review.
+    </div>
+
+  </div>
+</div>
+
+<!-- PRODUCTS STATUS -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div><h2>Product Status</h2><span class="section-summary">LoreConvo PROD | LoreDocs ALPHA | SQL Optimizer ON HOLD</span></div>
+    <span class="toggle collapsed">&#9660;</span>
+  </div>
+  <div class="section-body hidden">
+    <table>
+      <tr><th>Product</th><th>Version</th><th>Status</th><th>License</th><th>Tests</th><th>CVEs</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>LoreConvo</strong></td><td>v0.3.0</td><td><span class="status-dot dot-green"></span>Production</td>
+        <td>BSL 1.1</td><td>116 pass</td><td>0</td><td>Plugin hooks fixed, README updated, onboarding UX improved</td>
+      </tr>
+      <tr>
+        <td><strong>LoreDocs</strong></td><td>v0.1.0</td><td><span class="status-dot dot-orange"></span>Alpha</td>
+        <td>BSL 1.1</td><td>61 pass</td><td>0</td><td>README created, LOREDOCS_PRO env var added, tier tests added</td>
+      </tr>
+      <tr>
+        <td><strong>SQL Query Optimizer</strong></td><td>v0.1.0</td><td><span class="status-dot dot-gray"></span>On Hold</td>
+        <td>MIT-0</td><td>80 pass, 2 fail</td><td>2 (SEC-012)</td><td>No local SQL Server. anthropic SDK needs bump to 0.87.0</td>
+      </tr>
+      <tr>
+        <td><strong>Financial Report Gen</strong></td><td>--</td><td><span class="status-dot dot-gray"></span>Not Started</td>
+        <td>--</td><td>--</td><td>--</td><td>In pipeline</td>
+      </tr>
+      <tr>
+        <td><strong>CSV/Excel Transformer</strong></td><td>--</td><td><span class="status-dot dot-gray"></span>Not Started</td>
+        <td>--</td><td>--</td><td>--</td><td>In pipeline</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- SCHEDULE & HEALTH -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div><h2>Schedule &amp; Health</h2><span class="section-summary">All agents healthy, git lock files noted</span></div>
+    <span class="toggle collapsed">&#9660;</span>
+  </div>
+  <div class="section-body hidden">
+    <table>
+      <tr><th>Agent</th><th>Schedule</th><th>Last Run</th><th>Status</th><th>Next Run</th></tr>
+      <tr>
+        <td>Ron (Builder)</td><td>Daily 12:00 AM</td>
+        <td><span class="status-dot dot-green"></span>2026-04-02</td>
+        <td>7 TODOs completed</td><td>2026-04-03 12:00 AM</td>
+      </tr>
+      <tr>
+        <td>Meg (QA)</td><td>Daily 2:00 AM</td>
+        <td><span class="status-dot dot-green"></span>2026-04-02</td>
+        <td>YELLOW (286 tests, 2 fail)</td><td>2026-04-03 2:00 AM</td>
+      </tr>
+      <tr>
+        <td>Brock (Security)</td><td>Daily 3:00 AM</td>
+        <td><span class="status-dot dot-green"></span>2026-04-02</td>
+        <td>NEEDS ATTENTION (2 new findings)</td><td>2026-04-03 3:00 AM</td>
+      </tr>
+      <tr>
+        <td>Jacqueline (PM)</td><td>Daily 4:30 AM</td>
+        <td><span class="status-dot dot-green"></span>2026-04-02 (this run)</td>
+        <td>Generating dashboard</td><td>2026-04-03 4:30 AM</td>
+      </tr>
+      <tr>
+        <td>Scout (Research)</td><td>Monday 3:00 AM</td>
+        <td><span class="status-dot dot-green"></span>2026-03-30</td>
+        <td>5 opportunities scouted</td><td>2026-04-06 3:00 AM</td>
+      </tr>
+      <tr>
+        <td>Gina (Architect)</td><td>Wed + Sat 4:00 AM</td>
+        <td><span class="status-dot dot-green"></span>2026-04-01</td>
+        <td>Session recorded</td><td>2026-04-02 or 04-05</td>
+      </tr>
+      <tr>
+        <td>Madison (Marketing)</td><td>Tue + Fri 1:00 AM</td>
+        <td><span class="status-dot dot-green"></span>2026-04-01</td>
+        <td>First run successful</td><td>2026-04-04 1:00 AM</td>
+      </tr>
+    </table>
+
+    <div style="margin-top:16px">
+      <h3 style="font-size:14px; margin-bottom:8px;">Infrastructure Notes</h3>
+      <div class="finding finding-discrepancy">
+        <strong>Git lock files persist.</strong> HEAD.lock, index.lock, maintenance.lock present in .git/. These are Cowork VM artifacts and can cause git operations to fail. Clean with: <code>find .git -name "*.lock" -delete</code>
+      </div>
+      <div class="finding finding-info">
+        <strong>Git push reminder.</strong> Ron's latest work (TODOs #23-29, PIPELINE_AGENT_GUIDE.md, README updates) is staged but not yet pushed to origin. Debbie should push from Mac: <code>git push origin master</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MARKETING CONTENT -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div><h2>Marketing Content (Madison)</h2><span class="section-summary">First drafts ready for review</span></div>
+    <span class="toggle collapsed">&#9660;</span>
+  </div>
+  <div class="section-body hidden">
+    <div class="card-grid">
+      <div class="card card-blue">
+        <h3>Blog: "Why Your Claude Sessions Start From Zero"</h3>
+        <p>~1200 words targeting data engineers. Covers the ephemeral session problem and positions LoreConvo as the fix. Educational tone, not salesy. Ready for review.</p>
+        <div style="margin-top:8px"><span class="tag tag-blue">Draft</span><code style="font-size:11px">docs/marketing/blog_drafts/blog_why_claude_sessions_start_from_zero_2026_04_01.md</code></div>
+      </div>
+      <div class="card card-blue">
+        <h3>Email: LoreConvo Session Memory</h3>
+        <p>Promo email template tied to the blog post. Scheduled for 4/4 calendar slot.</p>
+        <div style="margin-top:8px"><span class="tag tag-blue">Pending</span><code style="font-size:11px">docs/marketing/promo/email_loreconvo_session_memory_2026_04_04.md</code></div>
+      </div>
+      <div class="card card-green">
+        <h3>8-Week Content Calendar</h3>
+        <p>Rolling calendar with Tuesday blog posts and Friday promo content. Covers LoreConvo, LoreDocs, general AI productivity, and data engineering topics.</p>
+        <div style="margin-top:8px"><span class="tag tag-green">Active</span><code style="font-size:11px">docs/marketing/content_calendar_madison.md</code></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Dashboard generated by Jacqueline (PM Agent) | April 2, 2026 | Side Hustle - Project Ron<br>
+  Posture: REVIEW NEEDED -- SEC-012 (CVE bump needed) and MEG-036 (test isolation) are non-urgent but should be addressed.
+</div>
+
+</div>
+
+<script>
+function toggleSection(header) {
+  var body = header.nextElementSibling;
+  var toggle = header.querySelector('.toggle');
+  if (body.classList.contains('hidden')) {
+    body.classList.remove('hidden');
+    toggle.classList.remove('collapsed');
+  } else {
+    body.classList.add('hidden');
+    toggle.classList.add('collapsed');
+  }
+}
+</script>
+</body>
+</html>

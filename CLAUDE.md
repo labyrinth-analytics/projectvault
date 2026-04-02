@@ -202,11 +202,11 @@ Key responsibilities:
 ## Other Critical Rules
 - NEVER publish, deploy, or make anything public without Debbie's explicit approval.
 - ALWAYS use ASCII-only characters in Python source files (no Unicode checkmarks, box-drawing, smart quotes).
-- ALWAYS check LoreConvo for recent sessions before starting work: call `get_recent_sessions` to see what was done last.
-- ALWAYS check LoreDocs for current docs: call `vault_list` then `vault_inject_summary` for relevant vaults.
+- ALWAYS check LoreConvo for recent sessions before starting work: call `get_recent_sessions` MCP tool, or fallback: `python scripts/save_to_loreconvo.py --read --limit 5`.
+- ALWAYS check LoreDocs for current docs: call `vault_list` then `vault_inject_summary` for relevant vaults. **Fallback (if MCP tools unavailable):** `python scripts/query_loredocs.py --list` and `python scripts/query_loredocs.py --info "vault name"`.
 - ALWAYS commit your work to git with clear commit messages before ending a session.
 - ALWAYS push to origin after committing: `git push origin master`
-- ALWAYS use the `save_session` MCP tool to save sessions to LoreConvo -- NEVER use raw SQL INSERT. The MCP tool auto-generates UUIDs; raw SQL does not and will insert NULL ids.
+- ALWAYS save sessions to LoreConvo at session end. Preferred: `save_session` MCP tool. **Fallback (if MCP tools unavailable):** run `python scripts/save_to_loreconvo.py --title "..." --surface "..." --summary "..."` -- this script auto-generates UUIDs and matches the MCP tool's behavior exactly. NEVER use raw SQL INSERT.
 - ALWAYS update this CLAUDE.md when you complete a TODO (move it to docs/COMPLETED.md with date/commit).
 - ALWAYS check `docs/qa/` and `docs/security/` for recent Meg/Brock reports at session start. Fix CRITICAL/HIGH findings before regular TODOs.
 - ALWAYS follow the priority order in the Ron TODOs list. Work on #1 first unless it's blocked, then #2, etc.
@@ -227,11 +227,11 @@ Key responsibilities:
 ## Session Workflow
 
 When starting a session:
-1. LoreConvo auto-loads recent context via SessionStart hook (no manual step needed)
-2. Check LoreDocs: `vault_list()` then `vault_inject_summary()` for active vaults
+1. **Load recent LoreConvo context:** Try `get_recent_sessions` MCP tool first. If MCP tools are not available, use the fallback: `python scripts/save_to_loreconvo.py --read --limit 5` (or `--search "keyword"` for targeted lookups).
+2. Check LoreDocs: try `vault_list()` then `vault_inject_summary()` MCP tools. Fallback: `python scripts/query_loredocs.py --list` and `python scripts/query_loredocs.py --info "vault name"`
 3. Read this file -- check Debbie TODOs for new approvals/decisions, then Ron TODOs for next work item
 4. **Sync pipeline (Ron only):** Read DEBBIE_DASHBOARD.md for any new decisions. Apply status changes to PipelineDB using `update_status()`, `set_priority()`, `set_hold_reason()`. See `docs/PIPELINE_AGENT_GUIDE.md` for details.
-5. **Check for Meg/Brock findings:** Read the latest reports in `docs/qa/` and `docs/security/`. Also search LoreConvo: `search_sessions("agent:meg")` and `search_sessions("agent:brock")` for recent findings. CRITICAL and HIGH severity bugs or vulnerabilities take priority over regular TODOs -- fix them first.
+5. **Check for Meg/Brock findings:** Read the latest reports in `docs/qa/` and `docs/security/`. Also search LoreConvo: try `search_sessions("agent:meg")` MCP tool, or fallback: `python scripts/save_to_loreconvo.py --search "agent:meg"`. CRITICAL and HIGH severity bugs or vulnerabilities take priority over regular TODOs -- fix them first.
 6. Read the relevant product CLAUDE.md for the product you will work on
 7. Read `docs/PIPELINE_AGENT_GUIDE.md` for your agent's pipeline responsibilities
 8. Pick the highest-priority work: Meg/Brock CRITICAL/HIGH fixes first, then Ron TODOs in order
@@ -239,10 +239,19 @@ When starting a session:
 
 When ending a session:
 1. Commit all changes with descriptive messages
-2. The SessionEnd hook auto-saves to LoreConvo (no manual step needed)
+2. **Save to LoreConvo (MANDATORY):** Try `save_session` MCP tool first. If MCP tools are not available (common in scheduled Cowork tasks), use the direct fallback script instead:
+   ```
+   python scripts/save_to_loreconvo.py \
+       --title "Agent-name session YYYY-MM-DD" \
+       --surface "your-surface" \
+       --summary "What was accomplished..." \
+       --tags '["agent:your-name", "other-tag"]' \
+       --artifacts '["path/to/file1.md", "path/to/file2.md"]'
+   ```
+   Valid surfaces: cowork, code, chat, qa, security, pm, marketing, pipeline
 3. Regenerate the pipeline dashboard: `python scripts/generate_pipeline_dashboard.py`
 4. If milestones were completed or product status changed, update the product roadmap (see doc-sync checklist item 7)
-5. If you created/updated significant docs, add them to LoreDocs too
+5. If you created/updated significant docs, add them to LoreDocs: try `vault_add_document` MCP tool, or fallback: `python scripts/query_loredocs.py --add-doc --vault "vault name" --name "doc name" --file path/to/file.md`
 6. Move completed TODOs to docs/COMPLETED.md with date and commit hash
 
 ## Architecture Principles
