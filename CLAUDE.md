@@ -11,86 +11,39 @@ Build and ship products that generate $8K/month passive income through Claude pl
 
 1. [ ] File USPTO trademark for LoreConvo (Class 009, $350)
 2. [ ] File USPTO trademark for LoreDocs (Class 009, $350)
-3. [x] Register copyright with new names (LoreConvo, LoreDocs)
-4. [ ] Review and approve rebuilt .plugin files when Ron completes them
-5. [ ] Activate live Stripe account (business verification, bank account for payouts, EIN for Labyrinth Analytics). Sandbox already set up 2026-03-22. Needed before self-hosted GitHub marketplace can collect payments.
+3. [ ] Review and approve rebuilt .plugin files when Ron completes them
+4. [ ] Activate live Stripe account (business verification, bank account for payouts, EIN for Labyrinth Analytics). Sandbox already set up 2026-03-22. Needed before self-hosted GitHub marketplace can collect payments.
 
 ## Ron TODOs (autonomous work, priority order)
 
-### Rebrand Finishing (Lore Product Family)
-1. [x] Add migration script for existing users (move DB files from old paths to new) -- done 2026-03-27, scripts/migrate_lore.py
-2. [x] Update revenue projection Excel with new names -- done 2026-03-27, docs/LoreConvo_Revenue_Projection.xlsx
-3. [x] Switch from MIT to BSL 1.1 -- done 2026-03-31. Created LICENSE files for LoreConvo and LoreDocs, updated pyproject.toml (both), README.md (LoreConvo), PUBLISHING.md (both), marketplace_listing.md (both), plugin.json (.claude-plugin and .plugin zips).
-4. [x] Rebuild .plugin files (loreconvo-v0.3.0.plugin, loredocs-v0.1.0.plugin) -- done 2026-03-27, both now use Lore names internally
-
-### Infrastructure (PRIORITY — do these before New Products)
-5. [x] Create proper .venv for each product that is missing one -- done 2026-03-31. LoreDocs requirements.txt generated. SQL Optimizer needs .venv created on Mac (setup script at scripts/setup_venvs.sh).
-6. [x] Pin all dependencies: requirements-lock.txt generated for LoreConvo and LoreDocs from venv metadata -- done 2026-03-31. Fixed CVE-2026-34073 (cryptography 46.0.5->46.0.6) and CVE-2026-4539 (Pygments 2.19.2->2.20.0).
-7. [x] Run `pip-audit` across all product venvs -- done 2026-03-31. All 3 products pass (0 CVEs after version bumps).
-
-### LoreConvo CLI Fixes
-8. [x] Add `loreconvo-cli` entry point to pyproject.toml pointing at `src/cli.py` -- done 2026-03-28
-9. [x] In `hooks/scripts/auto_save.py`, detect `Skill` tool invocations -- already implemented (lines 70-78 correctly extract skill name from input.skill). Marked done 2026-03-28.
-10. [x] Add `python cli.py skills list` subcommand -- done 2026-03-28 (also added list_all_skills() to database.py)
-
-### Pipeline Improvements
-11. [x] Add `set_hold_reason(opp_id, reason)` method to PipelineDB -- done 2026-03-28
-12. [x] Fix LoreConvo README: `export` CLI flags verified correct -- CLI does support --last and --format. No fix needed. Confirmed 2026-03-29.
-13. [x] Fix LoreDocs INSTALL.md: marked Options A and B as "coming soon" -- done 2026-03-28
-
-### Security Fixes (SQL Query Optimizer API) — added 2026-03-29
-14. [x] RECLASSIFIED (was CRITICAL, now INFO): Anthropic API key in `ron_skills/sql_query_optimizer/api/.env` is in a gitignored file on a single-user local machine with no remote access and no evidence of compromise. Reclassified per updated security guidelines 2026-03-31. No action required.
-15. [x] HIGH: Fix wildcard CORS in `ron_skills/sql_query_optimizer/api/main.py` -- done 2026-03-29 (env-var-driven origin list, allow_credentials=False, restricted methods/headers).
-16. [x] HIGH: Pin exact dependency versions in `ron_skills/sql_query_optimizer/api/requirements.txt` -- done 2026-03-29, added slowapi==0.1.9.
-17. [x] HIGH: Add rate limiting to `/admin/generate-key` endpoint -- done 2026-03-29 (SlowAPI 5/minute, IP logging).
-18. [x] MEDIUM: Add `max_length` to SQL query input field in `OptimizeRequest` model -- done 2026-03-29 (max_length=50000).
-19. [x] MEDIUM: Add security headers middleware -- done 2026-03-29 (HSTS, X-Frame-Options, X-Content-Type-Options, CSP, Referrer-Policy, Cache-Control).
-
-### Rebrand Cleanup
-20. [x] Rename LoreDocs `docs/marketing/convovault_projectvault_diagram.html` and `convovault_projectvault_sketch.html` to use Lore branding (loreconvo_loredocs_*) -- done 2026-04-01
-
-### Documentation
-21. [x] Add README.md for LoreDocs (modeled after LoreConvo README: tagline, quick start, usage for Code/Cowork, tool list, license) -- done 2026-04-01
+All completed items are in `docs/COMPLETED.md`. Only open work lives here.
 
 ### Marketplace & Plugin Distribution (TOP PRIORITY -- nothing else ships until this works)
-NOTE: Items 22, 35-39 are ONE block of work. The marketplace repo, plugin fixes, and
+NOTE: Items 1-6 are ONE block of work. The marketplace repo, plugin fixes, and
 install documentation must ALL be done together. The install flow is currently BROKEN
 for external users -- `/plugin install` references a marketplace that doesn't exist,
 .mcp.json defaults to Pro tier, and READMEs omit critical post-install steps.
 Debbie tested on 2026-04-02 and confirmed: the entire install path fails.
 
-22. [ ] Build self-hosted GitHub marketplace repo (labyrinth-analytics/claude-plugins) -- create repo with marketplace.json, package both .plugin files, write install instructions that actually work. TEST the full flow: `/plugin marketplace add`, `/plugin install`, `/install` enable step.
-23. [x] Sync Debbie's 2026-03-31 pipeline decisions to PipelineDB (OPP-002/003/004 approved, OPP-006/008 on hold, OPP-007/009/010 approved-for-review with priorities) -- done 2026-04-02
-35. [ ] Fix LoreConvo .mcp.json: set LORECONVO_PRO default to "" (empty/free tier), not "1". Public repo must ship as free tier.
-36. [ ] Fix LoreDocs .mcp.json: set LOREDOCS_PRO default to "" (empty/free tier), not "1". Same reasoning.
-37. [ ] Implement license key validation for Pro tier (both products): env var alone is not sufficient -- users can just set LORECONVO_PRO=1. Need Stripe checkout -> license key -> validation flow so Pro features require a valid key, not just an env flag.
-38. [ ] Add missing installation instructions to LoreConvo README: (a) after `/plugin install`, user must run `/install loreconvo` to enable it; (b) add CLAUDE.md snippet for session start/end rules; (c) document mounting .loreconvo directory to projects/Desktop so Cowork sessions can access the DB.
-39. [ ] Add same missing installation instructions to LoreDocs README: (a) `/install` step after `/plugin install`; (b) CLAUDE.md snippet; (c) mounting .loredocs directory.
+1. [ ] Build self-hosted GitHub marketplace repo (labyrinth-analytics/claude-plugins) -- create repo with marketplace.json, package both .plugin files, write install instructions that actually work. TEST the full flow: `/plugin marketplace add`, `/plugin install`, `/install` enable step.
+2. [ ] Fix LoreConvo .mcp.json: set LORECONVO_PRO default to "" (empty/free tier), not "1". Public repo must ship as free tier.
+3. [ ] Fix LoreDocs .mcp.json: set LOREDOCS_PRO default to "" (empty/free tier), not "1". Same reasoning.
+4. [ ] Implement license key validation for Pro tier (both products): env var alone is not sufficient -- users can just set LORECONVO_PRO=1. Need Stripe checkout -> license key -> validation flow so Pro features require a valid key, not just an env flag.
+5. [ ] Add missing installation instructions to LoreConvo README: (a) after `/plugin install`, user must run `/install loreconvo` to enable it; (b) add CLAUDE.md snippet for session start/end rules; (c) document mounting .loreconvo directory to projects/Desktop so Cowork sessions can access the DB.
+6. [ ] Add same missing installation instructions to LoreDocs README: (a) `/install` step after `/plugin install`; (b) CLAUDE.md snippet; (c) mounting .loredocs directory.
 
-### Plugin Onboarding & Auto-Load Fixes (do alongside marketplace work)
-24. [x] Fix LoreConvo SessionStart hook: wire up `auto_load.py` in plugin.json as second hook entry. Flattened nested hooks array structure. -- done 2026-04-02
-25. [x] Add "Recommended CLAUDE.md Setup" section to LoreConvo README.md with exact snippet for ~/.claude/CLAUDE.md session start/end instructions, Code and Cowork guidance. -- done 2026-04-02
-26. [x] Add "Recommended CLAUDE.md Setup" section to LoreDocs README.md (same pattern as LoreConvo). -- done 2026-04-02
-27. [ ] Build `/lore-onboard` skill for LoreConvo plugin that walks users through first-time setup: verifies MCP server is connected, adds CLAUDE.md snippet, runs a test save/load cycle, confirms hooks are firing.
-28. [x] Add "Verify Installation" section to both READMEs with a quick test: "Ask Claude to run `get_recent_sessions` / `vault_list` -- if you see results, it is working." -- done 2026-04-02
-29. [x] Fix COWORK_RESTORE.md: rewrote with correct tool names, CLAUDE.md workaround as primary recommendation, manual restore as fallback. -- done 2026-04-02
-
-### Fallback Scripts (product reliability -- ship with plugins)
-30. [x] Create cleaned save_to_loreconvo.py in `ron_skills/loreconvo/scripts/` (no internal refs) -- done 2026-04-02
-31. [x] Create cleaned query_loredocs.py in `ron_skills/loredocs/scripts/` (no internal refs) -- done 2026-04-02
-32. [x] Document fallback scripts in both product READMEs -- done 2026-04-02
-33. [x] Update CLAUDE.md agent paths to reference product copies (`ron_skills/*/scripts/`) instead of monorepo `scripts/` -- moved to #40
-34. [x] Delete old monorepo `scripts/save_to_loreconvo.py` and `scripts/query_loredocs.py` after path migration -- moved to #41
+### Plugin Onboarding
+7. [ ] Build `/lore-onboard` skill for LoreConvo plugin that walks users through first-time setup: verifies MCP server is connected, adds CLAUDE.md snippet, runs a test save/load cycle, confirms hooks are firing.
 
 ### Cleanup (do after marketplace is working)
-40. [ ] Update CLAUDE.md agent paths to reference product copies (`ron_skills/*/scripts/`) instead of monorepo `scripts/`
-41. [ ] Delete old monorepo `scripts/save_to_loreconvo.py` and `scripts/query_loredocs.py` after path migration
+8. [ ] Update CLAUDE.md agent paths to reference product copies (`ron_skills/*/scripts/`) instead of monorepo `scripts/`
+9. [ ] Delete old monorepo `scripts/save_to_loreconvo.py` and `scripts/query_loredocs.py` after path migration
 
 ### New Products
-42. [ ] SQL Query Optimizer: ClawHub skill packaging (ON HOLD -- no local SQL Server)
-43. [ ] SQL Query Optimizer: integration tests with real SQL Server queries (ON HOLD)
-44. [ ] Build Financial Report Generator skill + FastMCP backend
-45. [ ] Build CSV/Excel Data Transformer skill + FastMCP backend
+10. [ ] SQL Query Optimizer: ClawHub skill packaging (ON HOLD -- no local SQL Server)
+11. [ ] SQL Query Optimizer: integration tests with real SQL Server queries (ON HOLD)
+12. [ ] Build Financial Report Generator skill + FastMCP backend
+13. [ ] Build CSV/Excel Data Transformer skill + FastMCP backend
 
 ## Product Research Scout (Scheduled Task)
 - **Task:** `weekly-product-scout` — runs every Monday at 3 AM
@@ -230,7 +183,7 @@ Key responsibilities:
 - ALWAYS commit your work to git with clear commit messages before ending a session.
 - ALWAYS push to origin after committing: `git push origin master`
 - ALWAYS save sessions to LoreConvo at session end. Preferred: `save_session` MCP tool. **Fallback (if MCP tools unavailable):** run `python scripts/save_to_loreconvo.py --title "..." --surface "..." --summary "..."` -- this script auto-generates UUIDs and matches the MCP tool's behavior exactly. NEVER use raw SQL INSERT.
-- ALWAYS update this CLAUDE.md when you complete a TODO (move it to docs/COMPLETED.md with date/commit).
+- ALWAYS move completed TODOs out of this file immediately. When you finish a TODO: (1) add it to docs/COMPLETED.md with date/commit, (2) DELETE the [x] line from this file entirely, (3) renumber remaining items if needed. No [x] items should ever remain in this file -- only open [ ] items belong here.
 - ALWAYS check `docs/qa/` and `docs/security/` for recent Meg/Brock reports at session start. Fix CRITICAL/HIGH findings before regular TODOs.
 - ALWAYS follow the priority order in the Ron TODOs list. Work on #1 first unless it's blocked, then #2, etc.
 - Use Python 3.10+ and SQLite for all products. No external database dependencies.
@@ -275,7 +228,7 @@ When ending a session:
 3. Regenerate the pipeline dashboard: `python scripts/generate_pipeline_dashboard.py`
 4. If milestones were completed or product status changed, update the product roadmap (see doc-sync checklist item 7)
 5. If you created/updated significant docs, add them to LoreDocs: try `vault_add_document` MCP tool, or fallback: `python scripts/query_loredocs.py --add-doc --vault "vault name" --name "doc name" --file path/to/file.md`
-6. Move completed TODOs to docs/COMPLETED.md with date and commit hash
+6. Move completed TODOs to docs/COMPLETED.md with date and commit hash, then DELETE the [x] lines from this file. No completed items should remain in CLAUDE.md.
 
 ## Architecture Principles
 - Local-first: all data on user's machine, no cloud dependency for core features
@@ -301,8 +254,17 @@ When ending a session:
 - LiteLLM supply chain attack (2026-03-24): versions 1.82.7/1.82.8 on PyPI were compromised. Neither project uses LiteLLM. Audited clean. Pin deps to prevent future exposure.
 - Product-specific issues are in each product's CLAUDE.md.
 
-## Debbie's Preferences
-- Primarily uses SQL Server and Python
+## Debbie's Background & Preferences
+
+**Full skill profile:** 25+ years in data analytics. Python, SQL (all dialects -- SQL Server at work, SQLite/PostgreSQL for side hustle), ETL/ELT pipelines, data warehousing, schema design, migration planning, financial analysis, dashboards, MCP servers, Claude plugins, LangGraph, agent orchestration, consulting, finance automation, rental property management, tax preparation.
+
+**Local dev environment:** Mac, Python, SQLite, cloud APIs. Does NOT have SQL Server installed locally. Fred Hutch machines are off-limits for side hustle work (PHI/PII).
+
+**Good opportunity types for Scout:** Database-agnostic tools, pure Python tools, AI agent infrastructure, data quality/validation frameworks, financial data automation, developer workflow tools, knowledge management tools, consulting/analytics services.
+
+**Avoid building:** SQL Server-only tools, Oracle/enterprise DB tools, anything requiring PHI/PII, single-vendor-locked tools, tools requiring enterprise licenses to test.
+
+**Working preferences:**
 - Wants to review everything before it goes public
 - Prefers concise responses without trailing summaries
 - Keep file outputs in correct subdirectories, never at project root

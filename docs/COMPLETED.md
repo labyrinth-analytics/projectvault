@@ -139,3 +139,23 @@ Both names TESS-clean and Google-clean. 24 of 28 items completed.
 - [x] TODO #28: Verify Installation sections added to both READMEs with quick test commands
 - [x] TODO #29: Rewrote COWORK_RESTORE.md with correct tool names, CLAUDE.md workaround as primary recommendation, manual restore as fallback
 - [x] Fixed loreconvo-plugin plugin.json license from MIT to BSL-1.1
+
+### Fallback Scripts (TODOs #30-32)
+- [x] TODO #30: Created cleaned save_to_loreconvo.py in ron_skills/loreconvo/scripts/ (no internal refs)
+- [x] TODO #31: Created cleaned query_loredocs.py in ron_skills/loredocs/scripts/ (no internal refs)
+- [x] TODO #32: Documented fallback scripts in both product READMEs
+- [x] TODO #33/34: Moved to #40/#41 (cleanup phase, after marketplace is working)
+
+## 2026-04-02 -- Bulk TODO cleanup (Debbie)
+
+Moved all completed items from CLAUDE.md to this file. The following sections
+were entirely completed and removed from the active TODO list:
+
+- Rebrand Finishing (#1-4): migration script, revenue Excel, BSL 1.1 switch, plugin rebuilds
+- Infrastructure (#5-7): venvs, dependency pinning, pip-audit
+- LoreConvo CLI Fixes (#8-10): entry point, Skill detection, skills list subcommand
+- Pipeline Improvements (#11-13): set_hold_reason, README/INSTALL fixes
+- Security Fixes (#14-19): API key reclassified, CORS, rate limiting, input validation, security headers
+- Rebrand Cleanup (#20): marketing HTML file renames
+- Documentation (#21): LoreDocs README
+- Debbie TODO #3: Copyright registration with new names (LoreConvo, LoreDocs)
