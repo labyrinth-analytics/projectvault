@@ -177,3 +177,28 @@ Security fixes (Brock report 2026-04-02):
 
 - [x] SEC-012: Bump anthropic from 0.86.0 to 0.87.0 in SQL Optimizer requirements (CVE-2026-34450, CVE-2026-34452) (2026-04-03)
 - [x] SEC-013: Add .gitignore to ron_skills/sql_query_optimizer/ and api/ subdirectory (2026-04-03)
+
+## Ron Daily Session - 2026-04-03 (license key validation)
+
+License key validation for Pro tier - Ron TODO #1 (2026-04-03):
+
+- [x] Implement Ed25519 offline-verifiable license key system for LoreConvo (ron_skills/loreconvo/src/core/license.py)
+- [x] Implement Ed25519 offline-verifiable license key system for LoreDocs (ron_skills/loredocs/loredocs/license.py)
+- [x] License key format: LAB-{base64url(payload)}.{base64url(sig)} -- product-scoped, expiry-checked, signature-verified
+- [x] Internal dev bypass: LORECONVO_PRO=1 + LAB_DEV_MODE=1 (agents keep Pro; external users cannot use this without LAB_DEV_MODE)
+- [x] Integrate license.is_pro_licensed() into Config.is_pro (LoreConvo) and get_tier() (LoreDocs)
+- [x] Create scripts/generate_license_key.py for Debbie to generate signed keys when customers pay via Stripe
+- [x] Update internal loreconvo/.mcp.json to add LAB_DEV_MODE=1 alongside LORECONVO_PRO=1
+- [x] Update database.py error message to mention license keys instead of LORECONVO_PRO=1
+- [x] Write 28 new LoreConvo license tests (test_license.py) -- all passing
+- [x] Write 15 new LoreDocs license tests (tests/test_license.py) -- all passing
+- [x] Fix MEG-037 test assertions (test_mcp_json_pro_defaults.py) -- flip to assert free tier
+- [x] Update test_session_limit.py to use LAB_DEV_MODE=1 dev bypass pattern
+- [x] Update test_tiers_env_override.py to reflect new behavior (env var alone no longer grants Pro)
+- [x] 174 LoreConvo tests pass | 39 LoreDocs tests pass (213 total, 0 failures)
+
+NOTE FOR DEBBIE: The production signing private key was generated this session and is stored ONLY
+in the LoreConvo session log (not in git). Retrieve it with:
+  python scripts/save_to_loreconvo.py --read --limit 1 --surface cowork
+Or search: python scripts/save_to_loreconvo.py --search "license private key"
+Save the key to a password manager as "Labyrinth Analytics License Signing Key".
