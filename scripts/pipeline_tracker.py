@@ -5,17 +5,21 @@ Replaces ad-hoc PipelineDB with a structured SQLite database and CLI.
 All agents read/write through this script. No raw SQL.
 
 Usage:
-    python scripts/pipeline_tracker.py add --ref OPP-022 --type opportunity \
+    python scripts/pipeline_tracker.py add --type opportunity \
         --desc "New product idea" --agent scout
+    python scripts/pipeline_tracker.py add --type opportunity \
+        --desc "New product idea" --agent scout --ref OPP-025
     python scripts/pipeline_tracker.py update --ref OPP-022 --status approved \
         --agent debbie --note "Approved for architecture review"
     python scripts/pipeline_tracker.py list [--status new] [--type bug] [--agent ron]
     python scripts/pipeline_tracker.py show --ref SEC-014
     python scripts/pipeline_tracker.py block --ref OPP-016 --blocker "No local SQL Server"
     python scripts/pipeline_tracker.py depend --ref GINA-001 --blocks RON-TODO-1
-    python scripts/pipeline_tracker.py next --agent ron  # what should this agent work on?
+    python scripts/pipeline_tracker.py next --agent ron
+    python scripts/pipeline_tracker.py types
+    python scripts/pipeline_tracker.py statuses
 
-Reference ID formats:
+Reference ID formats (auto-generated if --ref is omitted):
     OPP-NNN    Pipeline opportunities (Scout)
     SEC-NNN    Security findings (Brock)
     MEG-NNN    QA findings (Meg)
@@ -28,6 +32,7 @@ Reference ID formats:
 import argparse
 import json
 import os
+import re
 import sqlite3
 import sys
 from datetime import datetime, timezone
@@ -128,6 +133,17 @@ VALID_TYPES = [
     "product",       # Product-level tracking
 ]
 
+# Map item type -> ref_id prefix for auto-generation
+TYPE_PREFIX = {
+    "opportunity":   "OPP",
+    "bug":           "MEG",
+    "security":      "SEC",
+    "architecture":  "GINA",
+    "task":          "RON",
+    "debbie-action": "DEBBIE",
+    "product":       "PROD",
+}
+
 
 def get_db():
     DB_DIR.mkdir(parents=True, exist_ok=True)
@@ -150,20 +166,41 @@ def log_change(conn, ref_id, agent, field, old_val, new_val):
     )
 
 
+def next_ref_id(conn, item_type):
+    """Auto-generate the next ref ID for a given type (e.g., OPP-025, MEG-041)."""
+    prefix = TYPE_PREFIX.get(item_type, item_type.upper()[:4])
+    pattern = f"{prefix}-%"
+    rows = conn.execute(
+        "SELECT ref_id FROM items WHERE ref_id LIKE ?", (pattern,)
+    ).fetchall()
+    max_num = 0
+    for r in rows:
+        m = re.search(r"-(\d+)$", r["ref_id"])
+        if m:
+            max_num = max(max_num, int(m.group(1)))
+    return f"{prefix}-{max_num + 1:03d}"
+
+
 def cmd_add(args):
     conn = get_db()
     ts = now_iso()
+
+    # Auto-generate ref_id if not provided
+    ref = args.ref
+    if not ref:
+        ref = next_ref_id(conn, args.type)
+
     try:
         conn.execute(
             "INSERT INTO items (ref_id, type, description, initial_date, status_date, "
             "updated_by, status, priority, product) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (args.ref, args.type, args.desc, ts, ts, args.agent, "new", args.priority, args.product),
+            (ref, args.type, args.desc, ts, ts, args.agent, "new", args.priority, args.product),
         )
-        log_change(conn, args.ref, args.agent, "status", None, "new")
+        log_change(conn, ref, args.agent, "status", None, "new")
         conn.commit()
-        print(f"  [OK] Added {args.ref}: {args.desc}")
+        print(f"  [OK] Added {ref}: {args.desc}")
     except sqlite3.IntegrityError:
-        print(f"  [WARN] {args.ref} already exists. Use 'update' to modify.")
+        print(f"  [WARN] {ref} already exists. Use 'update' to modify.")
     conn.close()
 
 
@@ -266,14 +303,34 @@ def cmd_depend(args):
 
 
 def cmd_list(args):
+    # Handle bare --type or --status (no value given) -> show valid choices
+    if args.status == "__list__":
+        cmd_statuses(args)
+        return 0
+    if args.type == "__list__":
+        cmd_types(args)
+        return 0
+
     conn = get_db()
     query = "SELECT * FROM items WHERE 1=1"
     params = []
 
     if args.status:
+        if args.status not in VALID_STATUSES:
+            print(f"  [ERROR] Invalid status '{args.status}'. Valid statuses:")
+            for s in VALID_STATUSES:
+                print(f"    {s}")
+            conn.close()
+            return 1
         query += " AND status = ?"
         params.append(args.status)
     if args.type:
+        if args.type not in VALID_TYPES:
+            print(f"  [ERROR] Invalid type '{args.type}'. Valid types:")
+            for t in VALID_TYPES:
+                print(f"    {t}")
+            conn.close()
+            return 1
         query += " AND type = ?"
         params.append(args.type)
     if args.agent:
@@ -369,14 +426,59 @@ def cmd_next(args):
     conn.close()
 
 
+def cmd_types(args):
+    """Show all valid item types."""
+    print("Valid item types:")
+    print(f"  {'Type':<16} {'Ref Prefix':<12} Description")
+    print("  " + "-" * 60)
+    descs = {
+        "opportunity":   "Pipeline opportunities (Scout finds these)",
+        "bug":           "QA findings (Meg)",
+        "security":      "Security findings (Brock)",
+        "architecture":  "Architecture findings (Gina)",
+        "task":          "Build tasks (Ron)",
+        "debbie-action": "Things only Debbie can do",
+        "product":       "Product-level tracking",
+    }
+    for t in VALID_TYPES:
+        prefix = TYPE_PREFIX.get(t, "???")
+        print(f"  {t:<16} {prefix + '-NNN':<12} {descs.get(t, '')}")
+
+
+def cmd_statuses(args):
+    """Show all valid statuses."""
+    print("Valid statuses:")
+    descs = {
+        "new":                "Just created, not yet triaged",
+        "approved":           "Debbie approved, ready for work",
+        "approved-for-review":"Approved, needs architecture review first",
+        "in-progress":        "Actively being worked on",
+        "completed":          "Done",
+        "needs-info":         "Needs more information before proceeding",
+        "on-hold":            "Blocked or paused",
+        "deferred":           "Pushed to later",
+        "rejected":           "Not doing this",
+        "acknowledged":       "Debbie has seen it, pending assignment",
+        "fix-scheduled":      "Fix is planned for a future session",
+        "wont-fix":           "Accepted risk, not fixing",
+    }
+    for s in VALID_STATUSES:
+        print(f"  {s:<22} {descs.get(s, '')}")
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Pipeline item tracker for all agents")
+    parser = argparse.ArgumentParser(
+        description="Pipeline item tracker for all agents",
+        epilog="Use 'types' or 'statuses' to see valid values. "
+               "Ref IDs are auto-generated if --ref is omitted on 'add'."
+    )
     sub = parser.add_subparsers(dest="command")
 
     # add
-    p_add = sub.add_parser("add", help="Add a new pipeline item")
-    p_add.add_argument("--ref", required=True, help="Reference ID (e.g., OPP-022, SEC-015, MEG-041)")
-    p_add.add_argument("--type", required=True, choices=VALID_TYPES, help="Item type")
+    p_add = sub.add_parser("add", help="Add a new pipeline item (ref ID auto-generated if omitted)")
+    p_add.add_argument("--ref", help="Reference ID (e.g., OPP-025). Auto-generated if omitted.")
+    p_add.add_argument("--type", required=True, choices=VALID_TYPES,
+                       help="Item type. Run 'types' to see all options.")
     p_add.add_argument("--desc", required=True, help="Description")
     p_add.add_argument("--agent", required=True, help="Who created this (e.g., scout, meg, debbie)")
     p_add.add_argument("--priority", help="Priority (P1-P5 or HIGH/MEDIUM/LOW)")
@@ -385,7 +487,8 @@ def main():
     # update
     p_upd = sub.add_parser("update", help="Update an existing item")
     p_upd.add_argument("--ref", required=True, help="Reference ID")
-    p_upd.add_argument("--status", choices=VALID_STATUSES, help="New status")
+    p_upd.add_argument("--status", choices=VALID_STATUSES,
+                        help="New status. Run 'statuses' to see all options.")
     p_upd.add_argument("--agent", required=True, help="Who is updating")
     p_upd.add_argument("--priority", help="New priority")
     p_upd.add_argument("--desc", help="Updated description")
@@ -403,9 +506,11 @@ def main():
     p_dep.add_argument("--blocks", required=True, help="Downstream item (the blocked)")
 
     # list
-    p_lst = sub.add_parser("list", help="List items with optional filters")
-    p_lst.add_argument("--status", help="Filter by status")
-    p_lst.add_argument("--type", help="Filter by type")
+    status_hint = "Filter by status (run 'statuses' to see all). Omit value to see choices."
+    type_hint = "Filter by type (run 'types' to see all). Omit value to see choices."
+    p_lst = sub.add_parser("list", help="List items (use --type/--status/--agent/--product to filter)")
+    p_lst.add_argument("--status", nargs="?", const="__list__", help=status_hint)
+    p_lst.add_argument("--type", nargs="?", const="__list__", help=type_hint)
     p_lst.add_argument("--agent", help="Filter by last updated_by")
     p_lst.add_argument("--product", help="Filter by product")
 
@@ -416,6 +521,12 @@ def main():
     # next
     p_nxt = sub.add_parser("next", help="Show next actionable items")
     p_nxt.add_argument("--agent", help="Filter for a specific agent")
+
+    # types
+    sub.add_parser("types", help="Show all valid item types and their ref ID prefixes")
+
+    # statuses
+    sub.add_parser("statuses", help="Show all valid statuses and their meanings")
 
     args = parser.parse_args()
 
@@ -433,6 +544,10 @@ def main():
         return cmd_show(args)
     elif args.command == "next":
         return cmd_next(args)
+    elif args.command == "types":
+        return cmd_types(args)
+    elif args.command == "statuses":
+        return cmd_statuses(args)
     else:
         parser.print_help()
         return 1
