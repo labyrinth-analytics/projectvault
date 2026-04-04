@@ -1,0 +1,12 @@
+[
+  {
+    "timestamp": "2026-04-04T17:39:04.325879+00:00",
+    "message": "add safe_git.py, turn budgets, agent communication protocol to CLAUDE.md\n\n- scripts/safe_git.py: handles Cowork VM immutable lock files with 3-step\n  fallback (clear locks -> alt index -> pending_commits.json)\n- CLAUDE.md: added Turn Budget section (Ron 30, Meg/Brock 25, others 20, hard cap 50)\n- CLAUDE.md: added Git Operations section (all agents MUST use safe_git.py)\n- CLAUDE.md: added Agent Communication Protocol (structured LoreConvo sessions)\n- CLAUDE.md: updated session workflow with stronger read-all-agents and structured saves\n- Ron scheduled task prompt updated with 30-turn hard limit",
+    "files": [
+      "scripts/safe_git.py",
+      "CLAUDE.md"
+    ],
+    "agent": "debbie",
+    "applied": false
+  }
+]

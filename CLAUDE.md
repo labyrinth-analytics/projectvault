@@ -198,13 +198,29 @@ Key responsibilities:
 - **Jacqueline:** Query `db.get_all_pipeline()` as the primary data source for the executive dashboard.
 - **Madison:** Check pipeline for product status before writing about any product.
 
+## Turn Budget (ALL agents)
+- **Ron:** Target 30 tool calls per session. At 25 tool calls, begin wrapping up (commit, save LoreConvo, stop). If a single TODO item is taking more than 20 tool calls, finish that item and stop -- do NOT start another. It is better to do one thing well than rush through three.
+- **Meg/Brock:** Target 25 tool calls. Write your report and save session. Do not exhaustively re-test every file if nothing changed.
+- **Jacqueline/Scout/Gina/Madison/John:** Target 20 tool calls. Your outputs are reports/docs -- read inputs, generate output, save, done.
+- **Git operations do NOT get unlimited retries.** If `safe_git.py commit` falls through to pending_commits.json, that counts as done. Move on.
+- **NEVER exceed 50 tool calls in a single session.** If you are approaching 50, stop immediately, save your session to LoreConvo with a note about what remains, and exit.
+
+## Git Operations (ALL agents -- MANDATORY)
+**NEVER use raw `git add`, `git commit`, or `git push` commands.** Always use the safe_git.py wrapper:
+```
+python scripts/safe_git.py commit -m "your message" --agent "your-name" file1.py file2.md
+python scripts/safe_git.py push
+python scripts/safe_git.py status
+```
+This script handles Cowork VM lock files automatically. If locks are immutable, it writes a `pending_commits.json` manifest that Debbie applies from her Mac with `python scripts/safe_git.py apply`. **Do NOT spend more than 1 tool call on git.** Run `safe_git.py commit`, accept whatever result it gives, and move on. NEVER manually manipulate .git/index, rename lock files, use GIT_INDEX_FILE, or attempt any other git workaround -- the script handles all of that.
+
 ## Other Critical Rules
 - NEVER publish, deploy, or make anything public without Debbie's explicit approval.
 - ALWAYS use ASCII-only characters in Python source files (no Unicode checkmarks, box-drawing, smart quotes).
 - ALWAYS check LoreConvo for recent sessions before starting work: call `get_recent_sessions` MCP tool, or fallback: `python scripts/save_to_loreconvo.py --read --limit 5`.
 - ALWAYS check LoreDocs for current docs: call `vault_list` then `vault_inject_summary` for relevant vaults. **Fallback (if MCP tools unavailable):** `python scripts/query_loredocs.py --list` and `python scripts/query_loredocs.py --info "vault name"`.
-- ALWAYS commit your work to git with clear commit messages before ending a session.
-- ALWAYS push to origin after committing: `git push origin master`
+- ALWAYS commit your work using `python scripts/safe_git.py commit` before ending a session. Accept the result (committed or pending).
+- ALWAYS attempt push after commit: `python scripts/safe_git.py push` (will fail from Cowork VM -- that is expected).
 - ALWAYS save sessions to LoreConvo at session end. Preferred: `save_session` MCP tool. **Fallback (if MCP tools unavailable):** run `python scripts/save_to_loreconvo.py --title "..." --surface "..." --summary "..."` -- this script auto-generates UUIDs and matches the MCP tool's behavior exactly. NEVER use raw SQL INSERT.
 - ALWAYS move completed TODOs out of this file immediately. When you finish a TODO: (1) add it to docs/COMPLETED.md with date/commit, (2) DELETE the [x] line from this file entirely, (3) renumber remaining items if needed. No [x] items should ever remain in this file -- only open [ ] items belong here.
 - ALWAYS check `docs/qa/` and `docs/security/` for recent Meg/Brock reports at session start. Fix CRITICAL/HIGH findings before regular TODOs.
@@ -226,20 +242,22 @@ Key responsibilities:
 ## Session Workflow
 
 When starting a session:
-0. **Clean up stale git locks (ALL agents, FIRST):** Run `find .git -name "*.lock" -mmin +30 -delete` before any git operations. This prevents a stuck agent from blocking all downstream agents.
-1. **Load recent LoreConvo context:** Try `get_recent_sessions` MCP tool first. If MCP tools are not available, use the fallback: `python scripts/save_to_loreconvo.py --read --limit 5` (or `--search "keyword"` for targeted lookups).
+0. **Check git status (1 tool call max):** Run `python scripts/safe_git.py status`. If there are pending commits from prior agents, note them but do NOT try to fix them -- Debbie handles pending commits.
+1. **Load recent LoreConvo context (CRITICAL -- read ALL agents, not just your own):** Try `get_recent_sessions` MCP tool first. If MCP tools are not available, use the fallback: `python scripts/save_to_loreconvo.py --read --limit 10` (or `--search "keyword"` for targeted lookups). **Read sessions from ALL agents** to understand what happened since your last run. Search for `agent:debbie` to find Debbie's decisions and task completions.
 2. Check LoreDocs: try `vault_list()` then `vault_inject_summary()` MCP tools. Fallback: `python scripts/query_loredocs.py --list` and `python scripts/query_loredocs.py --info "vault name"`
-3. Read this file -- check Debbie TODOs for new approvals/decisions, then Ron TODOs for next work item
+3. Read this file -- check Debbie TODOs for new approvals/decisions, then Ron TODOs for next work item. Also read `docs/DEBBIE_DASHBOARD.md` for Debbie's latest decisions.
 4. **Sync pipeline (Ron only):** Read DEBBIE_DASHBOARD.md for any new decisions. Apply status changes to PipelineDB using `update_status()`, `set_priority()`, `set_hold_reason()`. See `docs/PIPELINE_AGENT_GUIDE.md` for details.
 5. **Check for Meg/Brock findings:** Read the latest reports in `docs/qa/` and `docs/security/`. Also search LoreConvo: try `search_sessions("agent:meg")` MCP tool, or fallback: `python scripts/save_to_loreconvo.py --search "agent:meg"`. CRITICAL and HIGH severity bugs or vulnerabilities take priority over regular TODOs -- fix them first.
 6. Read the relevant product CLAUDE.md for the product you will work on
 7. Read `docs/PIPELINE_AGENT_GUIDE.md` for your agent's pipeline responsibilities
 8. Pick the highest-priority work: Meg/Brock CRITICAL/HIGH fixes first, then Ron TODOs in order
-9. Work on it, commit when done
+9. **Check your turn budget** (see Turn Budget section above). Plan your work to fit within the budget. ONE TODO item done well is better than three half-done.
+10. Work on it, commit when done using `python scripts/safe_git.py commit`
 
 When ending a session:
-1. Commit all changes with descriptive messages
-2. **Save to LoreConvo (MANDATORY):** Try `save_session` MCP tool first. If MCP tools are not available (common in scheduled Cowork tasks), use the direct fallback script instead:
+1. Commit all changes: `python scripts/safe_git.py commit -m "message" --agent "your-name" file1 file2`. Accept the result.
+2. Attempt push: `python scripts/safe_git.py push` (will fail from Cowork VM -- expected).
+3. **Save to LoreConvo (MANDATORY -- this is how agents communicate):** Try `save_session` MCP tool first. If MCP tools are not available (common in scheduled Cowork tasks), use the direct fallback script instead:
    ```
    python scripts/save_to_loreconvo.py \
        --title "Agent-name session YYYY-MM-DD" \
@@ -249,10 +267,25 @@ When ending a session:
        --artifacts '["path/to/file1.md", "path/to/file2.md"]'
    ```
    Valid surfaces: cowork, code, chat, qa, security, pm, marketing, pipeline
-3. Regenerate the pipeline dashboard: `python scripts/generate_pipeline_dashboard.py`
-4. If milestones were completed or product status changed, update the product roadmap (see doc-sync checklist item 7)
-5. If you created/updated significant docs, add them to LoreDocs: try `vault_add_document` MCP tool, or fallback: `python scripts/query_loredocs.py --add-doc --vault "vault name" --name "doc name" --file path/to/file.md`
-6. Move completed TODOs to docs/COMPLETED.md with date and commit hash, then DELETE the [x] lines from this file. No completed items should remain in CLAUDE.md.
+   **Your LoreConvo summary MUST include:** (a) what you completed, (b) what you blocked on, (c) what files need committing if git was blocked, (d) questions or handoffs for other agents. This is NOT optional -- other agents and Debbie depend on this for context.
+4. Regenerate the pipeline dashboard: `python scripts/generate_pipeline_dashboard.py`
+5. If milestones were completed or product status changed, update the product roadmap (see doc-sync checklist item 7)
+6. If you created/updated significant docs, add them to LoreDocs: try `vault_add_document` MCP tool, or fallback: `python scripts/query_loredocs.py --add-doc --vault "vault name" --name "doc name" --file path/to/file.md`
+7. Move completed TODOs to docs/COMPLETED.md with date and commit hash, then DELETE the [x] lines from this file. No completed items should remain in CLAUDE.md.
+
+## Agent Communication Protocol (ALL agents -- MANDATORY)
+LoreConvo is the shared communication backbone. Every agent reads it and writes to it. If you skip LoreConvo, downstream agents lose context and Debbie wastes time re-explaining.
+
+**Reading (session start):**
+- Read the last 10 sessions (not just 5) to catch cross-agent updates
+- Search for `agent:debbie` -- Debbie logs decisions and task completions here
+- Search for your own agent tag to check what you did last time (avoid duplicate work)
+- If another agent left a handoff for you (e.g., "BROCK-REVIEW:", "GINA-REVIEW:"), address it
+
+**Writing (session end):**
+- Tag every session with `agent:your-name` (e.g., `agent:ron`, `agent:meg`)
+- Include structured fields in the summary: COMPLETED, BLOCKED, PENDING_GIT, HANDOFFS
+- If you found something another agent needs to know, tag the session with their name too (e.g., `agent:ron` if Meg found a critical bug Ron needs to fix)
 
 ## Architecture Principles
 - Local-first: all data on user's machine, no cloud dependency for core features
@@ -274,7 +307,7 @@ When ending a session:
 - $HOME does NOT expand in ~/.claude/settings.json -- always use absolute paths
 - Conda cannot resolve the `mcp` package -- always use standard Python venv
 - git push will fail from Cowork VM (no GitHub credentials) -- Debbie pushes from her Mac
-- Cowork sessions leave .git/*.lock files -- clean with: find .git -name "*.lock" -delete
+- Cowork sessions leave immutable .git/*.lock files -- ALWAYS use `python scripts/safe_git.py` for ALL git operations. It handles locks automatically and falls back to pending_commits.json. NEVER manually fight lock files.
 - LiteLLM supply chain attack (2026-03-24): versions 1.82.7/1.82.8 on PyPI were compromised. Neither project uses LiteLLM. Audited clean. Pin deps to prevent future exposure.
 - Product-specific issues are in each product's CLAUDE.md.
 
