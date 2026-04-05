@@ -208,11 +208,18 @@ def format_output(result: str, output_format: str) -> str:
             return result
         except json.JSONDecodeError:
             # If not valid JSON, try to extract JSON from result
-            # Look for {...} or [...] patterns
-            json_match = re.search(r'({.*?}|\[.*?\])', result, re.DOTALL)
+            # Look for {...} or [...] patterns, trying greedy first for better matches
+            json_match = re.search(r'({.*}|\[.*\])', result, re.DOTALL)
             if json_match:
-                return json_match.group(1)
-            # If no JSON found, wrap result as error
+                extracted = json_match.group(1)
+                # Try to parse the extracted content to verify it's valid
+                try:
+                    json.loads(extracted)
+                    return extracted
+                except json.JSONDecodeError:
+                    # If extracted text is not valid, fall through to error
+                    pass
+            # If no valid JSON found, wrap result as error
             return json.dumps({
                 'error': 'Ollama output not valid JSON',
                 'raw_output': result[:500]
