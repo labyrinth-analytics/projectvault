@@ -30,7 +30,7 @@ templates:
 
       Focus on: exposed credentials, API keys, insecure patterns, dependency vulnerabilities, access control bypasses, data-at-rest security.
     output_format: "json"
-    timeout: 45
+    timeout: 30
 
   scout.opportunity_filter:
     description: "Rate and filter product opportunities for viability and fit"
@@ -48,7 +48,7 @@ templates:
 
       Consider: market demand, competitive landscape, technology stack, timeline, monetization model.
     output_format: "json"
-    timeout: 60
+    timeout: 30
 
   jacqueline.metrics_extract:
     description: "Extract and summarize metrics from agent reports for dashboard"
@@ -66,4 +66,4 @@ templates:
 
       Focus on: work completion, blockers, quality metrics, resource utilization, risk indicators.
     output_format: "json"
-    timeout: 35
+    timeout: 30
