@@ -30,6 +30,24 @@ python scripts/local_model_preprocess.py \
 - `1`: Ollama unavailable (agent continues without local preprocessing)
 - `2`: Config error (missing template + no custom prompt, or missing input file)
 
+### Optional: Audit Trail with LoreConvo
+
+To automatically save preprocessing actions to LoreConvo for debugging and audit trail, pass the `--save-to-loreconvo` flag:
+
+```bash
+python scripts/local_model_preprocess.py --agent meg --task test_scenarios \
+  --input code_changes.txt --model qwen3.5:9b --save-to-loreconvo
+```
+
+This logs the preprocessing action to LoreConvo with:
+- **Surface:** preprocessing
+- **Tags:** preprocessing, agent:meg, task:test_scenarios
+- **Summary:** Preview of output and execution details
+
+Useful for debugging, testing, and maintaining an audit trail of all preprocessing work.
+
+If `save_to_loreconvo.py` is unavailable or fails, the script logs a warning but continues — preprocessing is not blocked.
+
 ## Examples
 
 ### Meg QA: Extract test scenarios
@@ -56,6 +74,29 @@ python scripts/local_model_preprocess.py \
 ```
 
 Output: JSON with `{flagged: [...], safe: [...], reason: "..."}`
+
+### Example 3: Brock with Audit Trail
+
+```bash
+python scripts/local_model_preprocess.py \
+  --agent brock \
+  --task file_screening \
+  --input all_files.txt \
+  --model qwen3.5:9b \
+  --output-format json \
+  --save-to-loreconvo
+```
+
+Output:
+```json
+{
+  "flagged": ["auth.py", "database.py"],
+  "safe": ["test_helpers.py", "config.yaml"],
+  "reason": "auth.py modified crypto, database.py modified query logic"
+}
+```
+
+(This result is also saved to LoreConvo with surface='preprocessing' for later review.)
 
 ## Adding New Tasks
 
