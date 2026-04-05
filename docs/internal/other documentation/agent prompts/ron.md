@@ -16,9 +16,13 @@ python scripts/safe_git.py push
 Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for push, max.
 
 ## SESSION STARTUP
+0. Set pipeline DB path (REQUIRED -- prevents Cowork VM from using wrong database):
+   ```
+   export PIPELINE_DB=/Users/debbieshapiro/projects/side_hustle/data/pipeline.db
+   ```
 1. `python scripts/safe_git.py status`
-2. `python scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for decisions.
-3. `python scripts/query_loredocs.py --list`
+2. `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for decisions.
+3. `python ron_skills/loredocs/scripts/query_loredocs.py --list`
 4. Read `CLAUDE.md` (repo root) for TODOs and rules
 5. Read `docs/DEBBIE_DASHBOARD.md` for Debbie's latest decisions
 6. Check latest Meg QA: `docs/internal/qa/qa_report_YYYY_MM_DD.md`
@@ -70,7 +74,7 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
 ### LoreDocs: Archive deliverables for cross-agent search
 If you created or modified significant files, add them to LoreDocs:
 ```
-python scripts/query_loredocs.py --add-doc \
+python ron_skills/loredocs/scripts/query_loredocs.py --add-doc \
     --vault "Project Ron - Deliverables" \
     --name "Description of what was built YYYY-MM-DD" \
     --file path/to/key/file.py \
@@ -80,7 +84,7 @@ python scripts/query_loredocs.py --add-doc \
 
 ### LoreConvo: Log session for agent communication
 ```
-python scripts/save_to_loreconvo.py \
+python ron_skills/loreconvo/scripts/save_to_loreconvo.py \
     --title "Ron session YYYY-MM-DD" \
     --surface "cowork" \
     --summary "COMPLETED: ... | BLOCKED: ... | PENDING_GIT: ... | HANDOFFS: ..." \

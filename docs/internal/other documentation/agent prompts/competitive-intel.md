@@ -15,8 +15,12 @@ python scripts/safe_git.py push
 Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for push, max.
 
 ## SESSION STARTUP
+0. Set pipeline DB path (REQUIRED -- prevents Cowork VM from using wrong database):
+   ```
+   export PIPELINE_DB=/Users/debbieshapiro/projects/side_hustle/data/pipeline.db
+   ```
 1. `python scripts/safe_git.py status`
-2. `python scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for product direction decisions.
+2. `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for product direction decisions.
 3. Read `CLAUDE.md` for current product status and features
 4. Read `docs/PIPELINE_AGENT_GUIDE.md` -- your section under "Competitive Intel"
 5. **Read `docs/internal/competitive/INTAKE.md` -- process ALL pending entries FIRST** (Debbie drops ad hoc tips from Reddit, LinkedIn, social media here). Research each, assess threat level, create pipeline items, then move to "Processed" section.
@@ -97,7 +101,7 @@ python scripts/pipeline_tracker.py update --ref [relevant item] \
 
 ### 3. LoreDocs (MANDATORY -- archive your report for cross-agent search)
 ```
-python scripts/query_loredocs.py --add-doc \
+python ron_skills/loredocs/scripts/query_loredocs.py --add-doc \
     --vault "Competitive Intelligence" \
     --name "Competitive Scan YYYY-MM-DD" \
     --file docs/internal/competitive/competitive_scan_YYYY_MM_DD.md \
@@ -107,7 +111,7 @@ python scripts/query_loredocs.py --add-doc \
 
 ### 4. LoreConvo Session
 ```
-python scripts/save_to_loreconvo.py \
+python ron_skills/loreconvo/scripts/save_to_loreconvo.py \
     --title "Competitive intel scan YYYY-MM-DD" \
     --surface "pipeline" \
     --summary "COMPLETED: ... | BLOCKED: ... | PENDING_GIT: ... | HANDOFFS: ..." \

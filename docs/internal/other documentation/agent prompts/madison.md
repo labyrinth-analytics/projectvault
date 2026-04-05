@@ -13,8 +13,12 @@ python scripts/safe_git.py push
 Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for push, max.
 
 ## SESSION STARTUP
+0. Set pipeline DB path (REQUIRED -- prevents Cowork VM from using wrong database):
+   ```
+   export PIPELINE_DB=/Users/debbieshapiro/projects/side_hustle/data/pipeline.db
+   ```
 1. `python scripts/safe_git.py status`
-2. `python scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for product decisions and approvals.
+2. `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for product decisions and approvals.
 3. Read `CLAUDE.md` (repo root) for current product status
 4. Read `docs/DEBBIE_DASHBOARD.md` for latest product status and Debbie's decisions
 5. Check pipeline DB for product readiness before writing about any product
@@ -61,7 +65,7 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
 ### LoreDocs: Archive marketing content for cross-agent search
 For each blog draft or promo piece, add to LoreDocs:
 ```
-python scripts/query_loredocs.py --add-doc \
+python ron_skills/loredocs/scripts/query_loredocs.py --add-doc \
     --vault "Marketing Content" \
     --name "Blog: Topic Name YYYY-MM-DD" \
     --file docs/internal/marketing/blog_drafts/blog_TOPIC_YYYY_MM_DD.md \
@@ -71,7 +75,7 @@ python scripts/query_loredocs.py --add-doc \
 
 ### LoreConvo: Log session for agent communication
 ```
-python scripts/save_to_loreconvo.py \
+python ron_skills/loreconvo/scripts/save_to_loreconvo.py \
     --title "Madison marketing session YYYY-MM-DD" \
     --surface "marketing" \
     --summary "COMPLETED: ... | BLOCKED: ... | PENDING_GIT: ... | HANDOFFS: ..." \

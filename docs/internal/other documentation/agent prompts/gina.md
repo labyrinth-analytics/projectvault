@@ -13,8 +13,12 @@ python scripts/safe_git.py push
 Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for push, max.
 
 ## SESSION STARTUP
+0. Set pipeline DB path (REQUIRED -- prevents Cowork VM from using wrong database):
+   ```
+   export PIPELINE_DB=/Users/debbieshapiro/projects/side_hustle/data/pipeline.db
+   ```
 1. `python scripts/safe_git.py status`
-2. `python scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for decisions, `agent:brock` for GINA-REVIEW items, `agent:competitive-intel` for architecture concerns.
+2. `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for decisions, `agent:brock` for GINA-REVIEW items, `agent:competitive-intel` for architecture concerns.
 3. Read `CLAUDE.md` (repo root) for current product status and rules
 4. Read `docs/DEBBIE_DASHBOARD.md` for Debbie's latest decisions on pipeline items
 5. Check `docs/internal/security/` for GINA-REVIEW items from Brock
@@ -60,7 +64,7 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
 
 ### LoreDocs: Archive architecture reviews for cross-agent search
 ```
-python scripts/query_loredocs.py --add-doc \
+python ron_skills/loredocs/scripts/query_loredocs.py --add-doc \
     --vault "Pipeline Architecture Reviews" \
     --name "Architecture Review YYYY-MM-DD" \
     --file docs/internal/architecture/product_review_YYYY_MM_DD.md \
@@ -69,7 +73,7 @@ python scripts/query_loredocs.py --add-doc \
 ```
 For pipeline proposals, also add each one:
 ```
-python scripts/query_loredocs.py --add-doc \
+python ron_skills/loredocs/scripts/query_loredocs.py --add-doc \
     --vault "Pipeline Architecture Reviews" \
     --name "OPP-XXX Product Name Proposal" \
     --file docs/internal/architecture/OPP-XXX_product_name.md \
@@ -79,7 +83,7 @@ python scripts/query_loredocs.py --add-doc \
 
 ### LoreConvo: Log session for agent communication
 ```
-python scripts/save_to_loreconvo.py \
+python ron_skills/loreconvo/scripts/save_to_loreconvo.py \
     --title "Gina architecture session YYYY-MM-DD" \
     --surface "cowork" \
     --summary "COMPLETED: ... | BLOCKED: ... | PENDING_GIT: ... | HANDOFFS: ..." \
