@@ -215,3 +215,28 @@ Save the key to a password manager as "Labyrinth Analytics License Signing Key".
   - test_onboard.py: 23 tests covering all check functions, report formatting, and integration
 - [x] Fix MEG-038: removed unused import (Encoding, PublicFormat) in loreconvo/license.py
 - [x] 197 LoreConvo tests pass (174 existing + 23 new onboard tests, 0 failures)
+
+## MEG-041 Fix + Stability Mandate get_tier (2026-04-05, Ron daily)
+
+- [x] Fix MEG-041: copy lore-onboard skill to loreconvo-plugin bundle
+  - Copied ron_skills/loreconvo/skills/lore-onboard/ -> ron_skills/loreconvo-plugin/skills/lore-onboard/
+  - Rebuilt loreconvo-v0.3.0.plugin zip to include lore-onboard/SKILL.md
+  - Updated marketplace/claude-plugins/plugins/loreconvo-v0.3.0.plugin to match
+  - Both previously-failing MEG-041 tests (test_lore_onboard_skill_in_plugin,
+    test_all_user_facing_source_skills_present_in_plugin) should now pass
+- [x] Stability Mandate TODO #2: get_tier MCP tool -- CONFIRMED DONE (not in this session)
+  - get_tier already implemented in LoreConvo server.py (line 340) by prior session
+  - get_license_tier already implemented in LoreDocs server.py
+  - Confirmed DONE by Gina product review 2026-04-05 and Brock security report 2026-04-04
+  - Removed from CLAUDE.md open TODO list; renumbered install_dev_plugins.sh to #2
+
+## Stability Mandate TODO #3: install_dev_plugins.sh (2026-04-05, Ron daily)
+
+- [x] Build scripts/install_dev_plugins.sh -- developer install for Cowork
+  - Script sets up local venvs for LoreConvo + LoreDocs (pip install -e .)
+  - Builds dev .plugin files in dev-plugins/ using local binary (not uvx)
+  - Dev env vars: LAB_DEV_MODE=1 + LORECONVO_PRO/LOREDOCS_PRO=dev-local
+  - Added dev-plugins/ to .gitignore (absolute paths, not portable)
+  - Usage: bash scripts/install_dev_plugins.sh
+  - Output: dev-plugins/loreconvo-dev.plugin + dev-plugins/loredocs-dev.plugin
+  - After running: /plugin install /path/to/dev-plugins/loreconvo-dev.plugin

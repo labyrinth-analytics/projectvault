@@ -43,16 +43,6 @@ Action items (Ron's ONLY work until these are done, in order):
    - Verify on Cowork AND Claude Code
    - Document the confirmed working install path in INSTALL.md
 
-2. [ ] Wire up get_tier as an exposed MCP tool in both LoreConvo and LoreDocs server.py.
-   - get_license_status() already exists in each product's license.py -- just add @mcp.tool()
-   - This lets Debbie verify tier is active once the install flow is working
-   - Without this, there is no way to confirm Pro keys are loading correctly
-
-3. [ ] Build scripts/install_dev_plugins.sh -- developer install for Cowork.
-   - Install both .plugin files locally using dev bypass (LAB_DEV_MODE=1 + non-empty *_PRO value)
-   - Lets Debbie run her own products in Cowork without putting real signed keys into tracked files
-   - mcpServers in settings.json is Code-only and cannot be used for Cowork
-
 For each item: reproduce, root-cause, fix, verify on both platforms, document.
 
 Definition of done for this mandate: Debbie can install LoreConvo AND LoreDocs as
@@ -81,8 +71,7 @@ License key generation: Debbie needs to save the private signing key from the 20
 5. [ ] Update CLAUDE.md agent paths to reference product copies (`ron_skills/*/scripts/`) instead of monorepo `scripts/`
 
 #### Developer Install & Product Polish (FROZEN)
-6. [ ] Add `get_tier` as an exposed MCP tool in both LoreConvo and LoreDocs server.py files. The `get_license_status()` function already exists in each product's license module -- just wire it up as an `@mcp.tool()` so users (and Debbie) can call it to confirm their license tier without inferring it from behavior.
-7. [ ] Create a developer install script (`scripts/install_dev_plugins.sh` or similar) that installs LoreConvo and LoreDocs as local Cowork plugins using the dev bypass (`LAB_DEV_MODE=1` + a non-empty `*_PRO` value). This lets Debbie use her own products in Cowork sessions without putting real signed keys into tracked plugin files. Note: `mcpServers` in `~/.claude/settings.json` only works for Claude Code CLI -- Cowork loads MCP servers exclusively via the plugin system.
+<!-- 6. install_dev_plugins.sh -- DONE (2026-04-05, Ron daily). See COMPLETED.md. -->
 
 #### New Products (FROZEN)
 8. [ ] SQL Query Optimizer: ClawHub skill packaging (ON HOLD -- no local SQL Server)

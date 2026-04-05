@@ -45,3 +45,6 @@ Thumbs.db
 build_revenue_projection.py
 docs/internal/**/*.xlsx
 docs/internal/**/*.csv
+
+# Dev plugin builds (contain absolute local paths, not for distribution)
+dev-plugins/
