@@ -160,7 +160,7 @@ def call_ollama(
         Model output as string, or None if Ollama unavailable or timeout.
     """
     # Combine prompt and input
-    full_prompt = f'{prompt}\n\nContent to analyze:\n{input_content}'
+    full_prompt = f"{prompt}\n\nInput:\n{input_content}"
 
     try:
         # Call ollama via subprocess
