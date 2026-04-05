@@ -45,8 +45,9 @@ Focus on recently changed files (check git log for last 24h).
 
 Run:
 ```bash
-python scripts/local_model_preprocess.py --agent meg --task test_scenarios --input changed_files.txt --model qwen3.5:9b
+python scripts/local_model_preprocess.py --agent meg --task test_scenarios --input changed_files.txt --model qwen3.5:9b --save-to-loreconvo
 ```
+(This saves the preprocessing output to LoreConvo for audit trail and debugging.)
 
 If the above command succeeds, you'll see test scenarios in markdown format. Use them to guide your test generation. If it fails or times out, proceed normally with steps 1-5 below.
 
