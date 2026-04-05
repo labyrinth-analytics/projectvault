@@ -21,6 +21,7 @@ Exit codes:
 import argparse
 import json
 import logging
+import re
 import subprocess
 import sys
 import yaml
@@ -206,15 +207,24 @@ def format_output(result: str, output_format: str) -> str:
             json.loads(result)
             return result
         except json.JSONDecodeError:
-            # If not valid JSON, wrap in error object
+            # If not valid JSON, try to extract JSON from result
+            # Look for {...} or [...] patterns
+            json_match = re.search(r'({.*?}|\[.*?\])', result, re.DOTALL)
+            if json_match:
+                return json_match.group(1)
+            # If no JSON found, wrap result as error
             return json.dumps({
-                'status': 'error',
-                'message': 'Output is not valid JSON',
-                'raw': result
-            }, indent=2)
+                'error': 'Ollama output not valid JSON',
+                'raw_output': result[:500]
+            })
 
-    # For markdown and text, return as-is
-    return result
+    elif output_format == 'markdown':
+        # Markdown can just pass through (Ollama often returns markdown naturally)
+        return result
+
+    else:  # 'text'
+        # Plain text -- just return as-is
+        return result
 
 
 def main() -> int:
