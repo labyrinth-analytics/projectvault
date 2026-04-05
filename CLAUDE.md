@@ -12,9 +12,8 @@ Build and ship products that generate $8K/month passive income through Claude pl
 1. [ ] File USPTO trademark for LoreConvo (Class 009, $350)
 2. [ ] File USPTO trademark for LoreDocs (Class 009, $350)
 3. [ ] Review and approve rebuilt .plugin files (rebuilt 2026-04-03 with fixed .mcp.json, READMEs, plugin.json)
-4. [ ] Save the Labyrinth Analytics license signing private key (generated 2026-04-03) to a password manager. Retrieve from LoreConvo session log: `python scripts/save_to_loreconvo.py --read --limit 3 --surface cowork`. Search for "private key". Without this key, Pro license keys cannot be generated for paying customers.
-5. [ ] Activate live Stripe account (business verification, bank account for payouts, EIN for Labyrinth Analytics). Sandbox already set up 2026-03-22. Needed before self-hosted GitHub marketplace can collect payments.
-6. [ ] Create GitHub repo labyrinth-analytics/claude-plugins and push marketplace/claude-plugins/ contents. Then test: `/plugin marketplace add labyrinth-analytics/claude-plugins` followed by `/plugin install loreconvo@labyrinth-analytics-claude-plugins` and `/install loreconvo`.
+4. [ ] Activate live Stripe account (business verification, bank account for payouts, EIN for Labyrinth Analytics). Sandbox already set up 2026-03-22. Needed before self-hosted GitHub marketplace can collect payments.
+6. [ ] Create GitHub repo labyrinth-analytics/claude-plugins and push marketplace/claude-plugins/ contents. marketplace.json owner.email is confirmed correct (info@labyrinthanalyticsconsulting.com -- SEC-015 RESOLVED). Then test: `/plugin marketplace add labyrinth-analytics/claude-plugins` followed by `/plugin install loreconvo@labyrinth-analytics-claude-plugins` and `/install loreconvo`.
 
 ## Ron TODOs (autonomous work, priority order)
 

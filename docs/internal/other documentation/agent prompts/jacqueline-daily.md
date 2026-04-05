@@ -14,7 +14,7 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
 
 ## SESSION STARTUP
 1. `python scripts/safe_git.py status`
-2. `python scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. CRITICAL: search `agent:debbie` for decisions and completed tasks. Debbie logs her decisions here and they MUST be reflected in your dashboard.
+2. `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. CRITICAL: search `agent:debbie` for decisions and completed tasks. Debbie logs her decisions here and they MUST be reflected in your dashboard.
 3. Read `CLAUDE.md` (repo root) for Debbie TODOs, Ron TODOs, product status
 4. Read `docs/DEBBIE_DASHBOARD.md` -- this is your PRIMARY data source. Note the "Decisions Made" section for Debbie's latest decisions.
 5. Read latest agent reports (check today's date first, then yesterday):
@@ -24,13 +24,15 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
    - Competitive Intel: `docs/internal/competitive/competitive_scan_YYYY_MM_DD.md` (if new scan available)
    - Madison: `docs/internal/marketing/blog_drafts/` and `docs/internal/marketing/content_calendar_madison.md`
    - John: `docs/internal/technical/tech_docs_report_YYYY_MM_DD.md`
+   - Debbie: `docs/COMPLETED.md` for new entries
 6. Read `.claude/skills/pm-jacqueline/SKILL.md` for dashboard format spec
 
 ## INPUTS (what Jacqueline reads)
 - `CLAUDE.md` -- Debbie and Ron TODOs, product status
 - `docs/DEBBIE_DASHBOARD.md` -- Debbie's decisions (THIS IS THE SOURCE OF TRUTH for what Debbie has done)
+- `docs/COMPLETED.md` -- Debbie's completed items moved from TODOs
 - LoreConvo sessions: ALL agents, especially `agent:debbie` (decisions and task completions)
-- Agent reports: Ron (COMPLETED.md), Meg (internal/qa/), Brock (internal/security/), Gina (internal/architecture/), Competitive Intel (internal/competitive/), Scout (Opportunities/), Madison (internal/marketing/), John (internal/technical/)
+- Agent reports: Ron (COMPLETED.md), Meg (internal/qa/), Brock (internal/security/), Gina (internal/architecture/), Competitive Intel (internal/competitive/), Scout (opportunities/), Madison (internal/marketing/), John (internal/technical/)
 - `docs/internal/competitive/competitive_scan_YYYY_MM_DD.md` -- competitive intel findings. Surface key findings in the dashboard: HIGH-threat competitors, new feature gaps assigned to Ron, messaging angles sent to Madison, architecture items sent to Gina.
 - Pipeline DB: `db.get_all_pipeline()` for full pipeline state (includes competitive-intel-created tasks and architecture items)
 
@@ -68,7 +70,7 @@ Use Python to compute correct day: `from datetime import date; date.today().strf
 
 ### LoreDocs: Archive dashboard for cross-agent search
 ```
-python scripts/query_loredocs.py --add-doc \
+python ron_skills/loredocs/scripts/query_loredocs.py --add-doc \
     --vault "PM Dashboards" \
     --name "Executive Dashboard YYYY-MM-DD" \
     --file docs/internal/pm/executive_dashboard_YYYY_MM_DD.html \
@@ -78,7 +80,7 @@ python scripts/query_loredocs.py --add-doc \
 
 ### LoreConvo: Log session for agent communication
 ```
-python scripts/save_to_loreconvo.py \
+python ron_skills/loreconvo/scripts/save_to_loreconvo.py \
     --title "Jacqueline PM session YYYY-MM-DD" \
     --surface "pm" \
     --summary "COMPLETED: ... | BLOCKED: ... | PENDING_GIT: ... | HANDOFFS: ..." \

@@ -78,5 +78,24 @@
     ],
     "agent": "unknown",
     "applied": false
+  },
+  {
+    "timestamp": "2026-04-05T11:01:58.721027+00:00",
+    "message": "Jacqueline PM dashboard 2026-04-05: ACTION REQUIRED posture, MEG-041 escalated, pipeline status updated",
+    "files": [
+      "docs/internal/pm/executive_dashboard_2026_04_05.html",
+      "docs/DEBBIE_DASHBOARD.md"
+    ],
+    "agent": "jacqueline",
+    "applied": false
+  },
+  {
+    "timestamp": "2026-04-05T18:15:46.559956+00:00",
+    "message": "gina: product review 2026-04-05 -- YELLOW, GINA-001/002 still open",
+    "files": [
+      "docs/internal/architecture/product_review_2026_04_05.md"
+    ],
+    "agent": "gina",
+    "applied": false
   }
 ]

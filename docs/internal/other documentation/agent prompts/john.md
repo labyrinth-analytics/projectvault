@@ -14,7 +14,7 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
 
 ## SESSION STARTUP
 1. `python scripts/safe_git.py status`
-2. `python scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:meg` for QA-verified features, `agent:ron` for recent changes.
+2. `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:meg` for QA-verified features, `agent:ron` for recent changes.
 3. Read `CLAUDE.md` (repo root) for product status
 4. Read `.claude/skills/tech-docs-john/SKILL.md` for voice/tone guidelines and doc formats
 5. Check `git log --oneline -20` for recent Ron commits
@@ -53,7 +53,7 @@ Non-technical users who are comfortable installing a plugin but do not read sour
 ### LoreDocs: Archive documentation for cross-agent search
 For each doc file created or updated, add to LoreDocs:
 ```
-python scripts/query_loredocs.py --add-doc \
+python ron_skills/loredocs/scripts/query_loredocs.py --add-doc \
     --vault "Project Ron - Deliverables" \
     --name "Doc name (e.g., LoreConvo CLI Reference)" \
     --file ron_skills/loreconvo/docs/cli_reference.md \
@@ -63,7 +63,7 @@ python scripts/query_loredocs.py --add-doc \
 
 ### LoreConvo: Log session for agent communication
 ```
-python scripts/save_to_loreconvo.py \
+python ron_skills/loreconvo/scripts/save_to_loreconvo.py \
     --title "John tech docs YYYY-MM-DD" \
     --surface "cowork" \
     --summary "COMPLETED: ... | BLOCKED: ... | PENDING_GIT: ... | HANDOFFS: ..." \

@@ -67,7 +67,7 @@ Jacqueline surfaces untriaged items (status=`new`) in the daily dashboard.
    ```
 
 3. **Save LATEST report (MANDATORY):** Overwrite
-   `~/Documents/Claude/Projects/Side Hustle/Opportunities/LATEST_SCOUT_REPORT.html`
+   `docs/internal/opportunities/LATEST_SCOUT_REPORT.html`
 
 4. **Opportunity table format.** Each row MUST include: ID, Name, Description,
    Effort (1-5), MRR M12, Debbie Fit (1-5), Status (New), Action Needed.
@@ -286,6 +286,35 @@ Jacqueline surfaces untriaged items (status=`new`) in the daily dashboard.
 6. Flag stale items (e.g., `in-progress` for more than 7 days, `new` with no triage
    for more than 3 days).
 
+---
+
+### Jacqueline (pm-jacqueline-roadmap)
+
+**MUST DO on every run:**
+1. Read the full pipeline state as your primary data source:
+   ```bash
+   python scripts/pipeline_tracker.py list
+   ```
+
+2. Check for items needing Debbie's attention:
+   ```bash
+   python scripts/pipeline_tracker.py list --status new
+   python scripts/pipeline_tracker.py list --status needs-info
+   ```
+
+3. Check competitive intel for Madison handoffs:
+   ```bash
+   python scripts/pipeline_tracker.py list --agent competitive-intel
+   ```
+   Items with `MADISON:` notes should be surfaced in the dashboard for Madison.
+
+4. Cross-reference pipeline state with agent reports (Meg, Brock, Ron, Competitive Intel)
+   to validate consistency.
+
+5. Include the pipeline summary in your HTML executive dashboard.
+
+6. Flag stale items (e.g., `in-progress` for more than 7 days, `new` with no triage
+   for more than 3 days).
 ---
 
 ### Madison (madison-marketing-agent)

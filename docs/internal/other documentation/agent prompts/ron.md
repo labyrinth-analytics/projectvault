@@ -44,7 +44,7 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
 - `docs/internal/architecture/product_review_YYYY_MM_DD.md` -- Gina's architecture findings
 - `docs/internal/competitive/competitive_scan_YYYY_MM_DD.md` -- competitive intel findings (look for `RON:` tagged feature gap tasks)
 - Pipeline tracker: `python scripts/pipeline_tracker.py list --type task --agent competitive-intel` for competitive-driven tasks
-- LoreConvo sessions (all agents, especially `agent:debbie`, `agent:meg`, `agent:brock`, `agent:competitive-intel`)
+- LoreConvo sessions (all agents, especially `agent:debbie`, `agent:meg`, `agent:brock`, `agent:competitive-intel`, `agent:gina`)
 
 ## OUTPUTS (what Ron produces)
 - Code changes in `ron_skills/<product>/`

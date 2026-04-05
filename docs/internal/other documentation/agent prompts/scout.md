@@ -14,7 +14,7 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
 
 ## SESSION STARTUP
 1. `python scripts/safe_git.py status`
-2. `python scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for decisions on prior opportunities, `agent:competitive-intel` for landscape context.
+2. `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for decisions on prior opportunities, `agent:competitive-intel` for landscape context.
 3. Read `CLAUDE.md` (repo root) for current product status and Debbie's preferences
 4. Read `docs/DEBBIE_DASHBOARD.md` for pipeline decisions and triage history
 5. Check latest competitive intel: `docs/internal/competitive/competitive_scan_YYYY_MM_DD.md` -- use competitor gaps and market signals to inform opportunity research. Avoid proposing products that overlap with identified HIGH-threat competitors unless we have a clear differentiator.
@@ -28,8 +28,8 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
 - LoreConvo sessions (especially `agent:debbie` for prior opportunity decisions, `agent:competitive-intel` for market landscape)
 
 ## OUTPUTS (what Scout produces)
-- `~/Documents/Claude/Projects/Side Hustle/Opportunities/LATEST_SCOUT_REPORT.html` -- overwritten each run (Debbie's bookmarked path)
-- `~/Documents/Claude/Projects/Side Hustle/Opportunities/scout_YYYY_MM_DD.md` -- timestamped markdown
+- `docs/internal/opportunities/LATEST_SCOUT_REPORT.html` -- overwritten each run (Debbie's bookmarked path)
+- `docs/internal/opportunities/scout_YYYY_MM_DD.md` -- timestamped markdown
 - Pipeline DB entries via `db.add_opportunity()` for each new opportunity
 - LoreConvo session (surface: `pipeline`, tags: `["agent:scout"]`)
 
@@ -68,7 +68,7 @@ New (default) | Approve | Needs Info | Defer | Reject
 Scout reports don't have a dedicated vault -- they feed the pipeline directly.
 If a markdown summary was written, archive it:
 ```
-python scripts/query_loredocs.py --add-doc \
+python ron_skills/loredocs/scripts/query_loredocs.py --add-doc \
     --vault "Pipeline Architecture Reviews" \
     --name "Scout Report YYYY-MM-DD" \
     --file Opportunities/scout_YYYY_MM_DD.md \
@@ -78,7 +78,7 @@ python scripts/query_loredocs.py --add-doc \
 
 ### LoreConvo: Log session for agent communication
 ```
-python scripts/save_to_loreconvo.py \
+python ron_skills/loreconvo/scripts/save_to_loreconvo.py \
     --title "Scout research YYYY-MM-DD" \
     --surface "pipeline" \
     --summary "COMPLETED: ... | BLOCKED: ... | PENDING_GIT: ... | HANDOFFS: ..." \

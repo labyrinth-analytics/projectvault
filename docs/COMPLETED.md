@@ -3,6 +3,10 @@
 Historical log of completed items. Ron appends here when finishing TODOs.
 For full details, see git log.
 
+## Debbie Actions -- 2026-04-05
+
+- [x] **License signing private key saved to password vault** (2026-04-05, Debbie). Ed25519 private key for Labyrinth Analytics license system saved to password manager. Pro license keys generated for both LoreConvo and LoreDocs. Environment variables updated. SEC-015 also resolved: marketplace.json owner.email confirmed as info@labyrinthanalyticsconsulting.com (not personal Gmail).
+
 ## Rebrand -- Lore Product Family (2026-03-25 through 2026-03-26)
 
 ConvoVault -> LoreConvo | ProjectVault -> LoreDocs | Brand umbrella: Lore

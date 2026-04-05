@@ -15,7 +15,7 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
 
 ## SESSION STARTUP
 1. `python scripts/safe_git.py status`
-2. `python scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for decisions, `agent:ron` for recent work.
+2. `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --read --limit 10` -- read ALL agents. Search `agent:debbie` for decisions, `agent:ron` for recent work.
 3. Read `CLAUDE.md` (repo root) for current rules and Brock Security Classification Guidelines
 4. Check `docs/internal/qa/` for previous QA report to compare trends
 5. Check `git log --oneline -20` for Ron's recent commits
@@ -23,12 +23,14 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
 ## INPUTS (what Meg reads)
 - Ron's recent commits (`git log`)
 - All product code in `ron_skills/`
+- Internal development code in `side_hustle/`
 - Previous QA reports: `docs/internal/qa/qa_report_YYYY_MM_DD.md`
 - LoreConvo sessions (especially `agent:ron` for what changed)
 
 ## OUTPUTS (what Meg produces)
 - `docs/internal/qa/qa_report_YYYY_MM_DD.md` -- dated QA report
 - Test files in `ron_skills/<product>/tests/` -- new tests for untested code
+- Test files for internal scripts in `tests/` -- new tests for internally facing untested code
 - LoreConvo session (surface: `qa`, tags: `["agent:meg"]`)
 
 ## DEPENDENCIES
@@ -37,6 +39,7 @@ Do NOT use raw git commands. Do NOT fight lock files. 1 call for commit, 1 for p
 
 ## QA SCOPE
 All products in `ron_skills/`: LoreConvo, LoreDocs, SQL Query Optimizer.
+Internal development in `side_hustle/` folder: Pipeline development and communication.
 Focus on recently changed files (check git log for last 24h).
 
 ## QA CHECKLIST
@@ -73,7 +76,7 @@ If the above command succeeds, you'll see test scenarios in markdown format. Use
 
 ### LoreDocs: Archive QA report for cross-agent search
 ```
-python scripts/query_loredocs.py --add-doc \
+python ron_skills/loredocs/scripts/query_loredocs.py --add-doc \
     --vault "QA Reports" \
     --name "QA Report YYYY-MM-DD" \
     --file docs/internal/qa/qa_report_YYYY_MM_DD.md \
@@ -83,7 +86,7 @@ python scripts/query_loredocs.py --add-doc \
 
 ### LoreConvo: Log session for agent communication
 ```
-python scripts/save_to_loreconvo.py \
+python ron_skills/loreconvo/scripts/save_to_loreconvo.py \
     --title "Meg QA Report YYYY-MM-DD" \
     --surface "qa" \
     --summary "COMPLETED: ... | BLOCKED: ... | PENDING_GIT: ... | HANDOFFS: ..." \
