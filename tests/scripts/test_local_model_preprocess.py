@@ -554,3 +554,222 @@ class TestArgumentParsing:
         ):
             with pytest.raises(SystemExit):
                 parse_arguments()
+
+
+class TestCallOllama:
+    """Test Ollama subprocess orchestration."""
+
+    @patch('local_model_preprocess.subprocess.run')
+    def test_call_ollama_success(self, mock_run):
+        """Should return output on successful Ollama call."""
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout="Test output",
+            stderr=""
+        )
+
+        from local_model_preprocess import call_ollama
+
+        result = call_ollama('qwen3.5:9b', 'Test prompt', 'Test input', 30)
+        assert result == "Test output"
+        mock_run.assert_called_once()
+
+    @patch('local_model_preprocess.subprocess.run')
+    def test_call_ollama_timeout(self, mock_run):
+        """Should return None on timeout."""
+        import subprocess
+        mock_run.side_effect = subprocess.TimeoutExpired('ollama', 30)
+
+        from local_model_preprocess import call_ollama
+
+        result = call_ollama('qwen3.5:9b', 'Test prompt', 'Test input', 30)
+        assert result is None
+
+    @patch('local_model_preprocess.subprocess.run')
+    def test_call_ollama_not_found(self, mock_run):
+        """Should return None if Ollama not found."""
+        mock_run.side_effect = FileNotFoundError('ollama not found')
+
+        from local_model_preprocess import call_ollama
+
+        result = call_ollama('qwen3.5:9b', 'Test prompt', 'Test input', 30)
+        assert result is None
+
+    @patch('local_model_preprocess.subprocess.run')
+    def test_call_ollama_nonzero_exit(self, mock_run):
+        """Should return None if Ollama returns error."""
+        mock_run.return_value = MagicMock(
+            returncode=1,
+            stdout="",
+            stderr="Model not found"
+        )
+
+        from local_model_preprocess import call_ollama
+
+        result = call_ollama('qwen3.5:9b', 'Test prompt', 'Test input', 30)
+        assert result is None
+
+
+class TestIntegration:
+    """Integration tests with mocked Ollama."""
+
+    @patch('local_model_preprocess.subprocess.run')
+    def test_end_to_end_meg_test_scenarios(self, mock_run):
+        """Should orchestrate meg test_scenarios end-to-end."""
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout="1. Test login\n2. Test invalid password",
+            stderr=""
+        )
+
+        # Create a temporary input file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+            f.write("File: auth.py\nChanged: login function")
+            input_file = f.name
+
+        try:
+            with patch.object(sys, 'argv', [
+                'script',
+                '--agent', 'meg',
+                '--task', 'test_scenarios',
+                '--input', input_file,
+                '--model', 'qwen3.5:9b'
+            ]):
+                from local_model_preprocess import main
+
+                # Should return 0 on success
+                with patch('builtins.print') as mock_print:
+                    result = main()
+                    assert result == 0
+                    mock_print.assert_called_once()
+        finally:
+            Path(input_file).unlink()
+
+    def test_missing_input_file_exits_with_2(self):
+        """Should exit with code 2 if input file missing."""
+        with patch.object(sys, 'argv', [
+            'script',
+            '--agent', 'meg',
+            '--task', 'test_scenarios',
+            '--input', '/nonexistent/file.txt',
+            '--model', 'qwen3.5:9b'
+        ]):
+            from local_model_preprocess import main
+
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            assert exc_info.value.code == 2
+
+    @patch('local_model_preprocess.subprocess.run')
+    def test_ollama_unavailable_exits_with_1(self, mock_run):
+        """Should exit with code 1 if Ollama returns None."""
+        mock_run.side_effect = FileNotFoundError('ollama not found')
+
+        # Create a temporary input file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+            f.write("File: auth.py\nChanged: login function")
+            input_file = f.name
+
+        try:
+            with patch.object(sys, 'argv', [
+                'script',
+                '--agent', 'meg',
+                '--task', 'test_scenarios',
+                '--input', input_file,
+                '--model', 'qwen3.5:9b'
+            ]):
+                from local_model_preprocess import main
+
+                with pytest.raises(SystemExit) as exc_info:
+                    main()
+                assert exc_info.value.code == 1
+        finally:
+            Path(input_file).unlink()
+
+    def test_input_file_read_error_exits_with_2(self):
+        """Should exit with code 2 if input file cannot be read."""
+        # Create a file path we'll mock to fail on read
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+            input_file = f.name
+
+        try:
+            with patch.object(sys, 'argv', [
+                'script',
+                '--agent', 'meg',
+                '--task', 'test_scenarios',
+                '--input', input_file,
+                '--model', 'qwen3.5:9b'
+            ]):
+                from local_model_preprocess import main
+
+                # Mock read_text to raise an exception
+                with patch.object(Path, 'read_text', side_effect=IOError('Permission denied')):
+                    with pytest.raises(SystemExit) as exc_info:
+                        main()
+                    assert exc_info.value.code == 2
+        finally:
+            Path(input_file).unlink()
+
+    @patch('local_model_preprocess.subprocess.run')
+    def test_custom_prompt_no_template_found(self, mock_run):
+        """Should use custom prompt when template not found."""
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout="Custom output",
+            stderr=""
+        )
+
+        # Create a temporary input file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+            f.write("Test input")
+            input_file = f.name
+
+        try:
+            with patch.object(sys, 'argv', [
+                'script',
+                '--agent', 'nonexistent_agent',
+                '--task', 'nonexistent_task',
+                '--input', input_file,
+                '--model', 'qwen3.5:9b',
+                '--prompt', 'Custom prompt text'
+            ]):
+                from local_model_preprocess import main
+
+                with patch('builtins.print') as mock_print:
+                    result = main()
+                    assert result == 0
+                    mock_print.assert_called_once()
+        finally:
+            Path(input_file).unlink()
+
+    def test_no_template_no_custom_prompt_exits_with_2(self):
+        """Should exit with code 2 if no template and no custom prompt."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+            f.write("Test input")
+            input_file = f.name
+
+        try:
+            with patch.object(sys, 'argv', [
+                'script',
+                '--agent', 'nonexistent_agent',
+                '--task', 'nonexistent_task',
+                '--input', input_file,
+                '--model', 'qwen3.5:9b'
+            ]):
+                from local_model_preprocess import main
+
+                with pytest.raises(SystemExit) as exc_info:
+                    main()
+                assert exc_info.value.code == 2
+        finally:
+            Path(input_file).unlink()
+
+    @patch('local_model_preprocess.subprocess.run')
+    def test_generic_exception_in_call_ollama(self, mock_run):
+        """Should return None on generic exception in call_ollama."""
+        mock_run.side_effect = RuntimeError('Unexpected error')
+
+        from local_model_preprocess import call_ollama
+
+        result = call_ollama('qwen3.5:9b', 'Test prompt', 'Test input', 30)
+        assert result is None
