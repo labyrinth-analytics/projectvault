@@ -25,7 +25,7 @@ from unittest.mock import patch
 # Load the script as a module (it lives in scripts/, not a package)
 # ---------------------------------------------------------------------------
 
-_SCRIPT_PATH = Path(__file__).parent / "generate_license_key.py"
+_SCRIPT_PATH = Path(__file__).resolve().parent.parent.parent / "scripts" / "generate_license_key.py"
 
 
 def _load_script():

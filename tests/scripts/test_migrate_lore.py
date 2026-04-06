@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest import mock
 
 # Add scripts dir to path so we can import
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "scripts"))
 import migrate_lore
 
 

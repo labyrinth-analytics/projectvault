@@ -85,7 +85,7 @@ If you use Cowork, mount the data directory so Cowork sessions can access the da
 Cross-surface persistent memory for Claude sessions. Save conversations from Code, Cowork, and Chat -- recall decisions, artifacts, and context in any future session. Never re-explain yourself again.
 
 **Key features:**
-- 12 MCP tools for saving, searching, and recalling sessions
+- 13 MCP tools for saving, searching, and recalling sessions
 - Automatic SessionEnd/SessionStart hooks (Claude Code)
 - Full-text search across all session summaries
 - Tag-based filtering and persona support
@@ -100,7 +100,7 @@ Cross-surface persistent memory for Claude sessions. Save conversations from Cod
 Searchable, organized knowledge base for your AI projects. Store documents, tag them, search across them, and inject context into any Claude conversation.
 
 **Key features:**
-- 34 MCP tools for document management, search, and context injection
+- 35 MCP tools for document management, search, and context injection
 - Supports .md, .txt, .docx, .pdf, .xlsx, .pptx, and code files
 - Version history and document linking
 - Vault-based organization (one vault per project)
