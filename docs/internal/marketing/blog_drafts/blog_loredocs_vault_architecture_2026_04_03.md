@@ -1,5 +1,5 @@
 ---
-title: "Building a Reference Library for AI Projects: Why LoreDocs Vaults Matter"
+title: "Building a Reference Library for AI Projects: A Vault Blueprint for Reliable AI Development"
 slug: "loredocs-vault-architecture"
 date: 2026-04-03
 author: Labyrinth Analytics
@@ -15,7 +15,7 @@ And the knowledge is everywhere.
 
 Schema design documents live in three versions across Confluence -- you are not sure which is current. A runbook for deployment exists in a README, but it was updated twice and you cannot find the changelog. Architecture decision records are scattered: one in git, one in Notion, one pinned in a Slack thread from two months ago. When a new engineer asks "did we decide on event sourcing or CDC?" you have to dig through documents and hope you remember which version to trust.
 
-That is the reference knowledge problem. It is different from session memory (LoreConvo solves that). This is about organized, discoverable, canonical knowledge that you need to retrieve by topic, not by time.
+That is the reference knowledge problem. Your project has become a labyrinth -- every corridor looks like the right one, but there is no map. It is different from session memory (LoreConvo solves that). This is about organized, discoverable, canonical knowledge that you need to retrieve by topic, not by time.
 
 ## The Hidden Cost of Scattered Knowledge
 
@@ -62,34 +62,19 @@ Each vault is independent. Architecture decisions live in one place. Operational
 
 ## Current Status: Alpha
 
-LoreDocs v0.1.0 is production-ready for storing and organizing reference knowledge, but team collaboration features are still being built.
+LoreDocs v0.1.0 is production-ready for storing and organizing reference knowledge, but team collaboration features are still being built. A solo engineer can get started this week: create vaults, add documents, and immediately search across them by topic -- no upfront schema, no guessing folder names. When you ask Claude to inject the Architecture vault at the start of a session, Claude pulls your actual current documents into context, not a summary or paraphrase. You can also tag documents with custom labels like `current`, `deprecated`, or `needs-review`, which makes it straightforward to surface what is authoritative at a glance.
 
-What you can do now:
-- Create vaults and add documents with full-text search indexing
-- Search across vaults and retrieve documents by topic
-- Track complete version history for every document (every change is saved with a timestamp)
-- Access vaults from Claude Code and Cowork via MCP tools
-- Tag documents by category, priority, and custom labels
-
-What is coming soon:
-- Team collaboration (share vaults across team members)
-- Web publishing (expose a vault as a public knowledge base)
-- Document permissions (control who can edit)
-- Integration with external sources (sync from Git, Confluence, etc.)
+The road ahead is about scaling that same clarity to teams. We are building shared vault access so multiple engineers read the same canonical knowledge, web publishing so a vault can become a public-facing knowledge base, and integration with external sources like Git and Confluence so the pipeline between where decisions are made and where Claude retrieves them gets even shorter.
 
 Free tier covers the practical workload for a solo project or small team. Pro tier (coming soon) unlocks team features and larger knowledge bases.
 
 ## Why Not Just Use Confluence/Notion/Google Drive?
 
-These tools are good for collaborative writing and general documentation. But they have fundamental limitations for technical projects.
+You open Confluence on a Tuesday morning to answer a teammate's question about your partitioning strategy. There are four pages with similar titles. You click the most recent one, but the "last edited" date is seven months ago. You check a second page -- this one has a note at the top: "see v2 for updates." The v2 link is broken. You eventually find the right document buried in a subfolder labeled "Archive (maybe?)". By the time you paste the answer into Slack, twenty minutes are gone.
 
-Confluence and Notion organize knowledge hierarchically -- you create a folder structure and guess where documents belong. This works until your project has enough knowledge that the structure itself becomes confusing. Is a schema design decision an architecture document or a database reference? You categorize it wrong and it gets lost in the wrong section.
+These tools were designed for collaborative writing, not for knowledge that needs to stay current and machine-retrievable. The folder hierarchy requires guessing where things belong upfront. Full-text search returns keyword matches, not intent -- "incremental" finds fifty results and you have to read them to know which one is authoritative. Version management defaults to "make a copy" culture: version 1, version 1 final, version 1 final REAL. There is no systematic indicator that a document has been superseded.
 
-Full-text search in these tools finds keywords but not intent. You search for "incremental" and get fifty results, half of which are not relevant. You have to scroll through them all to find the right document. The canonical version is unclear -- is this the current decision or an old one that was superseded?
-
-Version management in most tools relies on "make a copy" culture or manually numbered versions (version 1, version 1 final, version 1 final REAL). There is no systematic way to track which version is current or to understand what changed between versions. When you look at an old document, there is no indicator that it has been superseded.
-
-LoreDocs is designed for a different use case: technical knowledge that changes over time but always needs to be current, instantly retrievable, and connected to your actual work in Claude.
+LoreDocs is designed for the opposite case: technical knowledge that changes over time, where "current" must be unambiguous, and where Claude needs to retrieve the right document -- not the most-recently-touched one.
 
 ## A Concrete Example: Onboarding with Vaults
 
@@ -103,15 +88,15 @@ With LoreDocs: A new engineer joins the project. You give them access to the pro
 
 LoreDocs is built for AI-native development. It works as an MCP server, which means Claude can access your vaults directly.
 
-At the start of a Claude Code session, you can ask Claude to "inject the Architecture vault" and the relevant reference documents are already in context. When you design a feature, Claude can reference your actual architecture documents (not a paraphrase or summary). When you finish a design decision, you add it to the vault immediately -- documentation happens as you work, not as a separate task later.
+Here is what that looks like in a real session. You are about to build a new ingestion endpoint and you start Claude Code with: "Load the Architecture vault -- I am designing the incremental load path." Claude pulls the Incremental Load Patterns doc (v2, current), the Schema Evolution Policy, and your Date Handling Standards directly into context. Not a summary you wrote last month. Not a paraphrase. The actual documents, versioned and tagged as current. When you ask "should this use CDC or event sourcing?", Claude reasons from your real architecture decisions -- the ones your team actually made -- and flags the constraints documented in the Schema Evolution Policy before you write a single line of code. The downstream effect: you build the right thing the first time. No "wait, I think we decided against that" mid-review.
 
-If you run autonomous agents (like we do at Labyrinth Analytics), each agent has access to the same vaults. The QA agent reads the same architecture docs as the builder. The deployment agent reads the same runbook. The knowledge is synchronized across your entire team.
+If you run autonomous agents (like we do at Labyrinth Analytics), each agent has access to the same vaults. The QA agent reads the same architecture docs as the builder. The deployment agent reads the same runbook. The knowledge stays synchronized whether a human or an agent is the one asking.
 
 ## Getting Started
 
 If you build data pipelines, ship ML systems, or manage any ongoing technical work, you need a reference library. Right now, most organizations improvise -- scattered documents in multiple tools, stale information mixed with current decisions, no way to know what to trust.
 
-LoreDocs handles the structure so you do not have to.
+LoreDocs handles the structure so you do not have to. Think of it as building a map of your system -- so Claude is never wandering blind in the maze again.
 
 [Get started with LoreDocs -- alpha access available](/tools)
 
