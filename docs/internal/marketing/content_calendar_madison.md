@@ -3,7 +3,7 @@
 Rolling 8-week content plan. Updated after each session.
 Madison runs Tuesday + Friday at 1:00 AM.
 
-Last updated: 2026-04-03
+Last updated: 2026-04-06 (Madison session)
 Maintained by: Madison (marketing agent)
 
 ---
@@ -24,6 +24,8 @@ Maintained by: Madison (marketing agent)
 |-----|------|-------|------|--------|
 | Tue Apr 1 | Blog | LoreConvo auto-memory: why Claude sessions start from zero | blog_why_claude_sessions_start_from_zero_2026_04_01.md | draft |
 | Fri Apr 4 | Promo | Email template for the session memory post | email_loreconvo_session_memory_2026_04_04.md | pending |
+
+**NOTE (Apr 6):** Blog rewrite completed. Original blog_loredocs_vault_architecture_2026_04_03.md was returned for rework on Apr 5 per Debbie feedback. Rewrite complete 2026-04-06 (feature verification, structure, cost beat, brand voice, frontmatter all fixed). Ready for Debbie review.
 
 ### Week 2: April 7-11, 2026
 

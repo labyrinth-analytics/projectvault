@@ -194,5 +194,23 @@
     ],
     "agent": "ron",
     "applied": true
+  },
+  {
+    "timestamp": "2026-04-07T01:45:12.093305+00:00",
+    "message": "rewrite: blog_loredocs_vault_architecture -- soften unshipped features, add cost beat, restructure",
+    "files": [
+      "docs/internal/marketing/blog_drafts/blog_loredocs_vault_architecture_2026_04_03.md"
+    ],
+    "agent": "madison",
+    "applied": false
+  },
+  {
+    "timestamp": "2026-04-07T01:45:47.418065+00:00",
+    "message": "calendar: update week 1 status with blog_loredocs rewrite completion note (Apr 6)",
+    "files": [
+      "docs/internal/marketing/content_calendar_madison.md"
+    ],
+    "agent": "madison",
+    "applied": false
   }
 ]
