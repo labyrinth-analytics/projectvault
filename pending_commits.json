@@ -202,7 +202,7 @@
       "docs/internal/marketing/blog_drafts/blog_loredocs_vault_architecture_2026_04_03.md"
     ],
     "agent": "madison",
-    "applied": false
+    "applied": true
   },
   {
     "timestamp": "2026-04-07T01:45:47.418065+00:00",
@@ -211,6 +211,48 @@
       "docs/internal/marketing/content_calendar_madison.md"
     ],
     "agent": "madison",
-    "applied": false
+    "applied": true
+  },
+  {
+    "timestamp": "2026-04-07T07:39:27.473621+00:00",
+    "message": "brock: security report 2026-04-06 -- NEEDS ATTENTION stable, GINA-003 resolved, SEC-022 INFO added",
+    "files": [
+      "docs/internal/security/security_report_2026_04_06.md"
+    ],
+    "agent": "brock",
+    "applied": true
+  },
+  {
+    "timestamp": "2026-04-07T07:40:31.041154+00:00",
+    "message": "marketing: fix blog_loredocs_vault_architecture and add blog_knowledge_stack_venn draft (Apr 7)",
+    "files": [
+      "docs/internal/marketing/blog_drafts/blog_loredocs_vault_architecture_2026_04_03.md",
+      "docs/internal/marketing/blog_drafts/blog_knowledge_stack_venn_2026_04_07.md",
+      "docs/internal/marketing/content_calendar_madison.md",
+      "docs/DEBBIE_DASHBOARD.md"
+    ],
+    "agent": "madison",
+    "applied": true
+  },
+  {
+    "timestamp": "2026-04-07T11:47:42.766080+00:00",
+    "message": "docs: 2026-04-06 changelog entries + create LoreConvo INSTALL.md",
+    "files": [
+      "ron_skills/loreconvo/INSTALL.md",
+      "ron_skills/loreconvo/docs/CHANGELOG.md",
+      "ron_skills/loredocs/docs/CHANGELOG.md"
+    ],
+    "agent": "john",
+    "applied": true
+  },
+  {
+    "timestamp": "2026-04-07T11:53:01.886862+00:00",
+    "message": "pm(jacqueline): executive dashboard 2026-04-07 + DEBBIE_DASHBOARD corrections",
+    "files": [
+      "docs/internal/pm/executive_dashboard_2026_04_07.html",
+      "docs/DEBBIE_DASHBOARD.md"
+    ],
+    "agent": "jacqueline",
+    "applied": true
   }
 ]

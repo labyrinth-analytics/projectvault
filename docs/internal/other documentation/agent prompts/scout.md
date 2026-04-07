@@ -54,6 +54,24 @@ Use safe_git.py for ALL git ops. Agent name: "scout". 1 call commit, 1 call push
 - Single-vendor-locked tools
 - Tools requiring enterprise licenses to test
 
+## WORKFLOW
+
+1. **Research phase:** Search web, GitHub, and developer forums to collect 8-10 raw candidates that meet the criteria below. For each, write 2-3 sentences: what it is, why it fits, rough effort and market estimate. Save notes to `/tmp/scout_raw_opportunities.txt`.
+
+2. **Filter phase (OPTIONAL - can fail gracefully):** Run the local model to rate and rank candidates:
+```bash
+python scripts/local_model_preprocess.py \
+    --agent scout \
+    --task opportunity_filter \
+    --input /tmp/scout_raw_opportunities.txt \
+    --model gemma4 \
+    --output-format json \
+    --save-to-loreconvo
+```
+If the command succeeds, use the JSON ratings (PURSUE / DEFER / REJECT + scores) to select your top 5 for the final report. If Ollama is not running or the command fails, apply the criteria manually to select the top 5.
+
+3. **Report phase:** Write the final HTML + markdown report and save the top 5 opportunities to PipelineDB.
+
 ## REPORT FORMAT
 Each opportunity row: ID (OPP-NNN), Name, Description, Effort (1-5), MRR estimate (M12), Debbie Fit score, Status (default: New), Action Needed.
 

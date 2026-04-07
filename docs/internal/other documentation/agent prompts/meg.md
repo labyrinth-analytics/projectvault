@@ -49,13 +49,18 @@ Focus on recently changed files (check git log for last 24h).
 
 ### Step 0: Local pre-analysis (OPTIONAL - can fail gracefully)
 
-Run:
+First generate the input file from recent commits, then run preprocessing:
 ```bash
-python scripts/local_model_preprocess.py --agent meg --task test_scenarios --input changed_files.txt --model qwen3.5:9b --save-to-loreconvo
+git diff --name-only HEAD~1 HEAD > /tmp/meg_changed_files.txt
+python scripts/local_model_preprocess.py \
+    --agent meg \
+    --task test_scenarios \
+    --input /tmp/meg_changed_files.txt \
+    --model qwen3.5:9b \
+    --save-to-loreconvo
 ```
-(This saves the preprocessing output to LoreConvo for audit trail and debugging.)
-
-If the above command succeeds, you'll see test scenarios in markdown format. Use them to guide your test generation. If it fails or times out, proceed normally with steps 1-5 below.
+If the command succeeds, use the markdown test scenarios output to guide your test generation in Steps 1-5.
+If /tmp/meg_changed_files.txt is empty (no recent commits), Ollama is not running, or the command fails for any reason, skip and proceed directly to Steps 1-5.
 
 ### Steps 1-5: QA Review
 

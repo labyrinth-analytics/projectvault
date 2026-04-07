@@ -34,6 +34,20 @@ Use safe_git.py for ALL git ops. Agent name: "jacqueline". 1 call commit, 1 call
    - Madison: `docs/internal/marketing/blog_drafts/` and `docs/internal/marketing/content_calendar_madison.md`
    - John: `docs/internal/technical/tech_docs_report_YYYY_MM_DD.md`
    - Debbie: `docs/COMPLETED.md` for new entries
+5a. **Local metrics extraction (OPTIONAL - can fail gracefully):** After reading agent reports, concatenate key content and run preprocessing to extract structured metrics:
+```bash
+cat docs/internal/qa/qa_report_$(python3 -c "from datetime import date; print(date.today().strftime('%Y_%m_%d'))").md \
+    docs/internal/security/security_report_$(python3 -c "from datetime import date; print(date.today().strftime('%Y_%m_%d'))").md \
+    docs/COMPLETED.md > /tmp/jacqueline_agent_reports.txt
+python scripts/local_model_preprocess.py \
+    --agent jacqueline \
+    --task metrics_extract \
+    --input /tmp/jacqueline_agent_reports.txt \
+    --model qwen3.5:9b \
+    --output-format json \
+    --save-to-loreconvo
+```
+If the command succeeds, use the JSON output (completed counts, blocked counts, health status per agent) to populate the dashboard KPI cards and Agent Health section. If Ollama is not running, the report files don't exist yet, or the command fails, populate the dashboard from your manual reading in Step 5.
 6. Read `.claude/skills/pm-jacqueline/SKILL.md` for dashboard format spec
 
 ## INPUTS (what Jacqueline reads)

@@ -46,20 +46,20 @@ Full security review covering TWO dimensions:
 
 ## STEP 0: LOCAL FILE PRE-SCREENING (OPTIONAL - can fail gracefully)
 
-Run:
+First generate the input file from recent commits, then run file screening:
 ```bash
-python scripts/local_model_preprocess.py --agent brock --task file_screening --input all_changed_files.txt --model qwen3.5:9b --output-format json --save-to-loreconvo
+git diff --name-only HEAD~1 HEAD > /tmp/brock_changed_files.txt
+python scripts/local_model_preprocess.py \
+    --agent brock \
+    --task file_screening \
+    --input /tmp/brock_changed_files.txt \
+    --model qwen3.5:9b \
+    --output-format json \
+    --save-to-loreconvo
 ```
-(This saves the preprocessing output and file categorization to LoreConvo for audit trail and debugging.)
-
-If the above command succeeds, you'll get JSON with:
-- `flagged`: files needing deep security review
-- `safe`: files safe to skip
-- `reason`: why files were flagged
-
-Use this to focus your review. If it fails, proceed with normal full scan.
-
-**After pre-screening:** Focus deep review on flagged files. Spot-check 2-3 non-flagged files for confidence.
+If the command succeeds, you'll get JSON with risk-categorized files (CRITICAL/HIGH/MEDIUM/LOW/SECURE).
+Focus deep review on CRITICAL and HIGH files. Spot-check 2-3 LOW/SECURE files for confidence.
+If /tmp/brock_changed_files.txt is empty (no recent commits), Ollama is not running, or the command fails, proceed with normal full scan of recently changed files.
 
 ## SECURITY CLASSIFICATION GUIDELINES
 - **API keys in local .env files:** If a key is in a gitignored .env on Debbie's single-user Mac with no remote access, classify as INFO (not CRITICAL). Only escalate to CRITICAL if found in git history, a public repo, a shared system, or showing signs of compromise.
