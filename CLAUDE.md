@@ -72,13 +72,13 @@ push the marketplace/ directory contents, and test the full install flow end-to-
 License key generation: Debbie needs to save the private signing key from the 2026-04-03 session (see LoreConvo session log or docs/COMPLETED.md note).
 
 #### LoreConvo CLI Interface (FROZEN)
-1. [ ] Add CLI entry point to LoreConvo (`ron_skills/loreconvo/src/cli/`) with save-session, list-sessions, search commands. Migrate logic from `scripts/save_to_loreconvo.py` into the product as a public feature (users running scheduled agents need programmatic access when MCP tools are unavailable).
-2. [ ] Add CLI entry point to LoreDocs (`ron_skills/loredocs/src/cli/`) with equivalent vault commands. Migrate logic from `scripts/query_loredocs.py`.
+1. [ ] Add CLI entry point to LoreConvo (`ron_skills/loreconvo/src/cli/`) with save-session, list-sessions, search commands. The fallback script at `ron_skills/loreconvo/scripts/save_to_loreconvo.py` is the current canonical fallback; the CLI entry point will expose the same functionality as a proper installed command.
+2. [ ] Add CLI entry point to LoreDocs (`ron_skills/loredocs/src/cli/`) with equivalent vault commands. The fallback script at `ron_skills/loredocs/scripts/query_loredocs.py` is the current canonical fallback.
 3. [ ] Slim down all scheduled agent task prompts (starting with Scout) to reference the CLI instead of inlining boilerplate Python. Scout prompt should contain only: role, research focus, criteria, and "run the CLI to save results."
-4. [ ] Update monorepo `scripts/save_to_loreconvo.py` and `scripts/query_loredocs.py` to become thin wrappers that call the product CLIs (backward compat for existing agent prompts).
+4. [ ] Delete `scripts/save_to_loreconvo.py` and `scripts/query_loredocs.py` from the monorepo root -- these are deprecated. All agents now use `ron_skills/loreconvo/scripts/` and `ron_skills/loredocs/scripts/` directly. Do this after confirming no scheduled task prompts still reference the old paths.
 
 #### Cleanup (FROZEN -- do after CLI migration)
-5. [ ] Update CLAUDE.md agent paths to reference product copies (`ron_skills/*/scripts/`) instead of monorepo `scripts/`
+<!-- 5. Update CLAUDE.md agent paths to reference ron_skills/*/scripts/ -- DONE 2026-04-06. All active guidance now points to product paths. -->
 
 #### Developer Install & Product Polish (FROZEN)
 <!-- 6. install_dev_plugins.sh -- DONE (2026-04-05, Ron daily). See COMPLETED.md. -->
@@ -267,7 +267,7 @@ This script handles Cowork VM lock files automatically. If locks are immutable, 
 ## Other Critical Rules
 - NEVER publish, deploy, or make anything public without Debbie's explicit approval.
 - ALWAYS use ASCII-only characters in Python source files (no Unicode checkmarks, box-drawing, smart quotes).
-- ALWAYS check LoreConvo for recent sessions before starting work: call `get_recent_sessions` MCP tool, or fallback: `python scripts/save_to_loreconvo.py --read --limit 5`.
+- ALWAYS check LoreConvo for recent sessions before starting work: call `get_recent_sessions` MCP tool, or fallback: `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --read --limit 5`.
 - ALWAYS check LoreDocs for current docs: call `vault_list` then `vault_inject_summary` for relevant vaults. **Fallback (if MCP tools unavailable):** `python ron_skills/loredocs/scripts/query_loredocs.py --list` and `python ron_skills/loredocs/scripts/query_loredocs.py --info "vault name"`.
 - ALWAYS commit your work using `python scripts/safe_git.py commit` before ending a session. Accept the result (committed or pending).
 - ALWAYS attempt push after commit: `python scripts/safe_git.py push` (will fail from Cowork VM -- that is expected).
@@ -294,7 +294,7 @@ This script handles Cowork VM lock files automatically. If locks are immutable, 
 When starting a session:
 0. **Check git status (1 tool call max):** Run `python scripts/safe_git.py status`. If there are pending commits from prior agents, note them but do NOT try to fix them -- Debbie handles pending commits.
 1. **Load recent LoreConvo context (CRITICAL -- read ALL agents, not just your own):** Try `get_recent_sessions` MCP tool first. If MCP tools are not available, use the fallback: `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --read --limit 10` (or `--search "keyword"` for targeted lookups). **Read sessions from ALL agents** to understand what happened since your last run. Search for `agent:debbie` to find Debbie's decisions and task completions.
-2. Check LoreDocs: try `vault_list()` then `vault_inject_summary()` MCP tools. Fallback: `python scripts/query_loredocs.py --list` and `python ron_skills/loredocs/scripts/query_loredocs.py --info "vault name"`
+2. Check LoreDocs: try `vault_list()` then `vault_inject_summary()` MCP tools. Fallback: `python ron_skills/loredocs/scripts/query_loredocs.py --list` and `python ron_skills/loredocs/scripts/query_loredocs.py --info "vault name"`
 3. Read this file -- check Debbie TODOs for new approvals/decisions, then Ron TODOs for next work item. Also read `docs/DEBBIE_DASHBOARD.md` for Debbie's latest decisions.
 4. **Sync pipeline (Ron only):** Read DEBBIE_DASHBOARD.md for any new decisions. Apply status changes to PipelineDB using `update_status()`, `set_priority()`, `set_hold_reason()`. See `docs/PIPELINE_AGENT_GUIDE.md` for details.
 5. **Check for Meg/Brock findings:** Read the latest reports in `docs/internal/qa/` and `docs/internal/security/`. Also search LoreConvo: try `search_sessions("agent:meg")` MCP tool, or fallback: `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --search "agent:meg"`. CRITICAL and HIGH severity bugs or vulnerabilities take priority over regular TODOs -- fix them first.

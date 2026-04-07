@@ -1,4 +1,8 @@
 """
+DEPRECATED -- use ron_skills/loredocs/scripts/query_loredocs.py instead.
+This file will be deleted once all scheduled task prompts are confirmed to use
+the product path. Do NOT add new functionality here.
+
 Direct LoreDocs query tool -- fallback when MCP tools are unavailable.
 
 Provides vault_list, vault_info (inject_summary), vault_search, and

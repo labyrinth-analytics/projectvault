@@ -1,4 +1,8 @@
 """
+DEPRECATED -- use ron_skills/loreconvo/scripts/save_to_loreconvo.py instead.
+This file will be deleted once all scheduled task prompts are confirmed to use
+the product path. Do NOT add new functionality here.
+
 Direct LoreConvo session saver -- fallback when MCP tools are unavailable.
 
 Use this script from any agent session when `save_session` MCP tool is not
