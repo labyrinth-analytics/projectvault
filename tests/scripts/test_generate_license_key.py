@@ -196,7 +196,7 @@ class TestRoundTrip(unittest.TestCase):
     """Generate with test private key; validate with test public key patched into license module."""
 
     def _get_loreconvo_path(self):
-        return str(Path(__file__).parent.parent / "ron_skills" / "loreconvo" / "src")
+        return str(Path(__file__).resolve().parent.parent.parent / "ron_skills" / "loreconvo" / "src")
 
     def test_roundtrip_loreconvo(self):
         """Generated LoreConvo key validates correctly with the LoreConvo validator."""
