@@ -31,8 +31,10 @@ Maintained by: Madison (marketing agent)
 
 | Day | Type | Topic | File | Status |
 |-----|------|-------|------|--------|
-| Tue Apr 7 | Blog | LoreDocs + Obsidian + NotebookLM: complementary knowledge stack for AI practitioners | blog_knowledge_stack_venn_2026_04_07.md | pending |
+| Tue Apr 7 | Blog | LoreDocs + Obsidian + NotebookLM: complementary knowledge stack for AI practitioners | blog_knowledge_stack_venn_2026_04_07.md | draft |
 | Fri Apr 11 | Promo | Social snippets -- LoreDocs alpha launch teaser | social_loredocs_alpha_2026_04_11.md | pending |
+
+**NOTES (Apr 7):** Blog #2 (loredocs_vault_architecture) fixes applied and marked ready for Debbie review. Blog #3 (knowledge_stack_venn) draft completed on schedule.
 
 ### Week 3: April 14-18, 2026
 
