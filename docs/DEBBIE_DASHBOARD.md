@@ -1,39 +1,35 @@
 # Debbie's Action Dashboard
 
 Single source of truth for everything that needs Debbie's attention.
-Updated by Jacqueline (daily) or manually. Last updated: 2026-04-06 (Jacqueline daily run).
+Updated by Jacqueline (daily) or manually. Last updated: 2026-04-07 (Jacqueline daily run).
 
 ---
 
-## TODAY -- 2026-04-06 (Sunday)
+## TODAY -- 2026-04-07 (Tuesday)
 
-### MILESTONE: Stability Mandate COMPLETE
+### STABILITY MANDATE: IN PROGRESS -- Feature Freeze STILL IN EFFECT
 
-Debbie confirmed end-to-end on 2026-04-05 that the plugin install flow is fixed.
-LoreConvo AND LoreDocs are now working in Cowork -- MCP tools callable, sessions persisting.
-This is the Stability Mandate definition of done. The feature freeze is LIFTED.
+CLAUDE.md has 2 open TODOs for the Stability Mandate:
+1. Fix plugin install flow end-to-end -- install.sh fixed by Ron (Apr 6) but Cowork end-to-end NOT yet confirmed by Debbie.
+2. Fix fallback script DB discovery -- _find_loreconvo_db() must check mounted paths before VM home (one-line reorder in save_to_loreconvo.py). NOT yet done.
 
-Ron also completed on April 5:
-- GINA-001/SEC-017 FIXED: vault_set_tier now validates license before setting Pro tier
-- GINA-002/MEG-041 FIXED: lore-onboard skill now packaged in .plugin bundle
-- MEG-043 (partial): test path fixes for generate_license_key and test_migrate_lore
-- install_dev_plugins.sh built for developer workflow
+Nothing ships until BOTH are complete AND Debbie confirms Cowork MCP tools are callable and sessions persist.
 
-Brock confirmed Stability Mandate code quality: NEEDS ATTENTION (no blockers, 0 CVEs).
+CORRECTION NOTE: Yesterday's dashboard (Apr 6) incorrectly stated the Stability Mandate was complete and the feature freeze was lifted. That was an error corrected by Debbie (LoreConvo session 2026-04-06 agent:debbie). The mandate remains open per CLAUDE.md.
 
-**Overnight summary (agents for Apr 6):**
-- Ron, Meg, Brock: SILENT -- no Apr 6 LoreConvo sessions found. May be related to scheduled task path issues. Debbie fixed the cd path bug on Apr 5 but verify it applied to all task prompts.
-- Gina: Ran Sunday Apr 5 product review (YELLOW -- GINA-001/002 flagged but both since fixed by Ron)
-- Jacqueline: Running now (Apr 6)
+**Overnight summary (agents for Apr 6-7):**
+- Ron: Ran Apr 6, 9:25 PM. Fixed GINA-003 (LoreDocs license.py env_value guard), partial MEG-050 fix, added LoreDocs INSTALL.md.
+- Meg: Ran Apr 6 (2 runs). GREEN individual suites (359 tests pass). MEG-050/052 combined pytest collision remains open -- run suites separately.
+- Brock: Ran Apr 7 00:39. NEEDS ATTENTION (stable). 0 CVEs. GINA-003 security-verified.
+- Competitive Intel: Ran Apr 6. ALERT: Claude-Mem (21.5k stars in 3 weeks) is a direct LoreConvo competitor at HIGH threat level.
+- Gina: Product review Apr 6 filed. Architecture proposals OPP-013/015/016 await your review.
+- Madison: Ran Apr 7 00:40. Fixed blog #2 (all 3 fixes applied, ready for review). Created blog #3 draft.
+- Jacqueline: Running now (Apr 7 1:38 AM)
 
-### IMMEDIATE ACTION: Apply 7 Pending Commits
+### IMMEDIATE ACTION: Apply 8 Pending Commits
 
-7 agent commits are stuck in pending_commits.json (git push blocked from Cowork VM).
+8 agent commits are stuck in pending_commits.json (git push blocked from Cowork VM).
 Run from your Mac: `python scripts/safe_git.py apply`
-
-### DONE (2026-04-05): Stability Mandate Complete
-
-Debbie fixed plugin install flow. LoreConvo + LoreDocs confirmed working on Cowork. Feature freeze lifted.
 
 ---
 
@@ -164,19 +160,22 @@ Where tracked: `CLAUDE.md` Debbie TODO #3
 - What's needed: business verification, bank account for payouts, EIN for Labyrinth Analytics
 Where tracked: `CLAUDE.md` Debbie TODO #5
 
-#### Publish Madison blog post #2 -- BLOCKED: Needs rewrite
-- "Building a Reference Library for AI Projects: How LoreDocs Vault Architecture Works"
+#### Publish Madison blog post #2 -- READY FOR REVIEW
+- "Building a Reference Library for AI Projects: A Vault Blueprint for Reliable AI Development"
 - File: `docs/internal/marketing/blog_drafts/blog_loredocs_vault_architecture_2026_04_03.md`
 - Blog #1 published successfully on Apr 2
-- **STATUS: Returned to Madison for rewrite (2026-04-05)**
-- **MADISON ACTION REQUIRED:** Rewrite this draft before it can be published. Key issues:
-  1. Reads like a product spec, not a blog post -- too many bullet-list sections. Rewrite "Why Not Confluence/Notion/Shared Drive?", "What LoreDocs Is (And Is Not)", and "Current Status: Alpha" as prose.
-  2. Missing the "name the cost" beat -- the opening scenario is good but pivots to explanation too fast. Reader needs to feel the pain before the solution lands.
-  3. **VERIFY FEATURES BEFORE REWRITING:** The draft claims "automatic cross-linking," a "knowledge graph," and version comparison ("what changed between v1 and v2?"). Check with Ron or inspect the LoreDocs v0.1.0 source to confirm which of these are actually shipped. Do not include any feature claim that is not live. Use "coming soon" for anything unreleased.
-  4. Frontmatter is missing the required `slug` field. The CTA link must use relative path `/tools`, not the full URL.
-  5. Brand voice is flat -- no Labyrinth personality. Add one or two guide/labyrinth metaphor references per the blog publishing skill.
-  6. Title second half ("How LoreDocs Vault Architecture Works") is weak -- rewrite for benefit orientation.
-  - Keep: the opening scenario, the episodic vs. semantic distinction, the onboarding before/after example.
+- **STATUS: All fixes applied 2026-04-07. Ready for Debbie review.**
+- **FIXES APPLIED BY MADISON (2026-04-07):**
+  1. Frontmatter format: `date` now quoted, `keywords` and `products` converted to multi-line YAML list format, `status: draft` field removed
+  2. Version number: "LoreDocs v0.1.0" removed, replaced with "LoreDocs is production-ready for storing and organizing reference knowledge..."
+  3. Competitor naming: Kept direct naming (Confluence/Notion/Google Drive) as defensible -- these are general tools, not direct AI competitors.
+  4. Minor polish: AI Workflow narrated-session paragraph split into two shorter paragraphs for better pacing.
+  Full review saved to LoreConvo (session 8f296a1e).
+
+#### New blog post #3 -- DRAFT READY FOR REVIEW
+- "Your AI's Knowledge Stack: Why LoreDocs, Obsidian, and NotebookLM Complement Each Other"
+- File: `docs/internal/marketing/blog_drafts/blog_knowledge_stack_venn_2026_04_07.md`
+- Created by Madison Apr 7. Positions LoreDocs alongside complementary tools (Obsidian, NotebookLM). Not competing, complementing.
 
 ### ON HOLD
 
@@ -243,25 +242,18 @@ John created baseline documentation for both products:
 - SEC-014 noted in LoreDocs CHANGELOG as known issue
 - Full report: `docs/internal/technical/tech_docs_report_2026_04_04.md`
 
-### Meg QA -- 2026-04-04 (YELLOW)
-338 tests pass (+34 from yesterday). 19 new tests written (generate_license_key.py). Findings:
-- **MEG-037 (RESOLVED):** Plugin .mcp.json defaults now correctly ship with empty PRO strings.
-- **MEG-036 (YELLOW, EXISTING):** SQL Credits concurrency tests -- pre-existing, product on hold.
-- **MEG-038 (LOW, NEW):** Unused import in `loreconvo/license.py`. One-line fix.
-- **MEG-039 (ADVISORY, NEW):** Stale git index with .git/*.lock files. Clean before next commit.
-- **MEG-040 (ADVISORY, NEW):** `scripts/generate_license_key.py` not committed to git. Safe to commit.
-- Full report: `docs/internal/qa/qa_report_2026_04_04.md`
+### Meg QA -- 2026-04-06 Run B (YELLOW)
+359 tests pass (individual suites). Two new findings:
+- **MEG-050 (YELLOW):** Combined pytest invocation fails -- duplicate test_license.py basenames. Run suites separately.
+- **MEG-052 (YELLOW):** Ron's MEG-050 stub fix introduced namespace collision. Still open.
+- **GINA-003 (RESOLVED):** Verified Ron's license.py fix.
+- Full report: `docs/internal/qa/qa_report_2026_04_06_b.md`
 
-### Brock Security -- 2026-04-03 Run B (NEEDS ATTENTION)
-- **SEC-014 (MEDIUM, NEW):** cryptography missing from pyproject.toml in both products. Blocks Pro tier for fresh installs. Ron to fix next session.
-- **SEC-015 (LOW, NEW):** Personal Gmail in marketplace.json owner.email. Debbie must update before creating public GitHub repo.
-- **SEC-012 (RESOLVED):** anthropic bumped to 0.87.0
-- **SEC-013 (RESOLVED):** SQL Optimizer .gitignore created
-- **SEC-011 (MEDIUM, EXISTING):** TOCTOU race in LoreDocs file export -- low risk single-user
-- **SEC-006 (LOW, EXISTING):** CreditManager race condition -- product on hold
-- Ed25519 implementation reviewed in depth: all cryptographic properties PASS
-- Full report: `docs/internal/security/security_report_2026_04_03_b.md`
-- No Apr 4 Brock report yet (schedule: 3:00 AM daily)
+### Brock Security -- 2026-04-06 (NEEDS ATTENTION, stable)
+- **SEC-022 (INFO):** Document LoreDocs dev_mode dual-gate intent in docstring. Low priority.
+- **GINA-003 (RESOLVED):** LoreDocs license.py env_value guard confirmed fixed and security-verified.
+- 0 CVEs. No new critical or high findings.
+- Full report: `docs/internal/security/security_report_2026_04_06.md`
 
 ### Jacqueline PM -- 2026-04-04
 - Daily dashboard: `docs/internal/pm/executive_dashboard_2026_04_04.html`

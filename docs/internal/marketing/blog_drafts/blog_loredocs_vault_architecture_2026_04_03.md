@@ -1,12 +1,19 @@
 ---
 title: "Building a Reference Library for AI Projects: A Vault Blueprint for Reliable AI Development"
 slug: "loredocs-vault-architecture"
-date: 2026-04-03
+date: "2026-04-03"
 author: Labyrinth Analytics
 summary: "Your AI project knowledge scattered across multiple tools is a liability. LoreDocs organizes it in one place, versioned and searchable, so Claude and your team always work from current information."
-keywords: [LoreDocs, knowledge management, AI projects, documentation, Claude, MCP server, data engineering]
-products: [LoreDocs]
-status: draft
+keywords:
+  - LoreDocs
+  - knowledge management
+  - AI projects
+  - documentation
+  - Claude
+  - MCP server
+  - data engineering
+products:
+  - LoreDocs
 ---
 
 ## You Are Six Months Into a Data Pipeline Project
@@ -62,7 +69,7 @@ Each vault is independent. Architecture decisions live in one place. Operational
 
 ## Current Status: Alpha
 
-LoreDocs v0.1.0 is production-ready for storing and organizing reference knowledge, but team collaboration features are still being built. A solo engineer can get started this week: create vaults, add documents, and immediately search across them by topic -- no upfront schema, no guessing folder names. When you ask Claude to inject the Architecture vault at the start of a session, Claude pulls your actual current documents into context, not a summary or paraphrase. You can also tag documents with custom labels like `current`, `deprecated`, or `needs-review`, which makes it straightforward to surface what is authoritative at a glance.
+LoreDocs is production-ready for storing and organizing reference knowledge, but team collaboration features are still being built. A solo engineer can get started this week: create vaults, add documents, and immediately search across them by topic -- no upfront schema, no guessing folder names. When you ask Claude to inject the Architecture vault at the start of a session, Claude pulls your actual current documents into context, not a summary or paraphrase. You can also tag documents with custom labels like `current`, `deprecated`, or `needs-review`, which makes it straightforward to surface what is authoritative at a glance.
 
 The road ahead is about scaling that same clarity to teams. We are building shared vault access so multiple engineers read the same canonical knowledge, web publishing so a vault can become a public-facing knowledge base, and integration with external sources like Git and Confluence so the pipeline between where decisions are made and where Claude retrieves them gets even shorter.
 
@@ -88,9 +95,9 @@ With LoreDocs: A new engineer joins the project. You give them access to the pro
 
 LoreDocs is built for AI-native development. It works as an MCP server, which means Claude can access your vaults directly.
 
-Here is what that looks like in a real session. You are about to build a new ingestion endpoint and you start Claude Code with: "Load the Architecture vault -- I am designing the incremental load path." Claude pulls the Incremental Load Patterns doc (v2, current), the Schema Evolution Policy, and your Date Handling Standards directly into context. Not a summary you wrote last month. Not a paraphrase. The actual documents, versioned and tagged as current. When you ask "should this use CDC or event sourcing?", Claude reasons from your real architecture decisions -- the ones your team actually made -- and flags the constraints documented in the Schema Evolution Policy before you write a single line of code. The downstream effect: you build the right thing the first time. No "wait, I think we decided against that" mid-review.
+Here is what that looks like in a real session. You are about to build a new ingestion endpoint and you start Claude Code with: "Load the Architecture vault -- I am designing the incremental load path." Claude pulls the Incremental Load Patterns doc (v2, current), the Schema Evolution Policy, and your Date Handling Standards directly into context. Not a summary you wrote last month. Not a paraphrase. The actual documents, versioned and tagged as current.
 
-If you run autonomous agents (like we do at Labyrinth Analytics), each agent has access to the same vaults. The QA agent reads the same architecture docs as the builder. The deployment agent reads the same runbook. The knowledge stays synchronized whether a human or an agent is the one asking.
+When you ask "should this use CDC or event sourcing?", Claude reasons from your real architecture decisions -- the ones your team actually made -- and flags the constraints documented in the Schema Evolution Policy before you write a single line of code. The downstream effect: you build the right thing the first time. No "wait, I think we decided against that" mid-review. If you run autonomous agents (like we do at Labyrinth Analytics), each agent has access to the same vaults. The QA agent reads the same architecture docs as the builder. The deployment agent reads the same runbook. The knowledge stays synchronized whether a human or an agent is the one asking.
 
 ## Getting Started
 
