@@ -40,6 +40,36 @@
       "homepage": "https://github.com/labyrinth-analytics/loredocs",
       "license": "BSL-1.1",
       "keywords": ["knowledge-management", "documents", "search", "ai-projects", "vault"]
+    },
+    {
+      "name": "loreconvo-test",
+      "source": {
+        "source": "path",
+        "path": "plugins/loreconvo-test.plugin"
+      },
+      "description": "LoreConvo local test build -- uses local venv binary (pre-PyPI). Requires side_hustle repo at ~/projects/side_hustle/.",
+      "version": "0.3.0-local",
+      "author": {
+        "name": "Labyrinth Analytics Consulting"
+      },
+      "homepage": "https://github.com/labyrinth-analytics/loreconvo",
+      "license": "BSL-1.1",
+      "keywords": ["memory", "sessions", "context", "recall", "cross-surface", "local-test"]
+    },
+    {
+      "name": "loredocs-test",
+      "source": {
+        "source": "path",
+        "path": "plugins/loredocs-test.plugin"
+      },
+      "description": "LoreDocs local test build -- uses local venv binary (pre-PyPI). Requires side_hustle repo at ~/projects/side_hustle/.",
+      "version": "0.1.0-local",
+      "author": {
+        "name": "Labyrinth Analytics Consulting"
+      },
+      "homepage": "https://github.com/labyrinth-analytics/loredocs",
+      "license": "BSL-1.1",
+      "keywords": ["knowledge-management", "documents", "search", "ai-projects", "local-test"]
     }
   ]
 }

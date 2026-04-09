@@ -78,6 +78,57 @@ If you use Cowork, mount the data directory so Cowork sessions can access the da
 
 ---
 
+## Testing locally (before PyPI publish)
+
+If you have the side_hustle repo cloned locally and want to test the install flow before
+the packages are published to PyPI, use the local test plugins instead.
+
+### Prerequisites
+
+The venv binaries must be built in the side_hustle repo:
+
+```bash
+# LoreConvo venv
+cd ~/projects/side_hustle/ron_skills/loreconvo
+python3 -m venv .venv && .venv/bin/pip install -e .
+
+# LoreDocs venv
+cd ~/projects/side_hustle/ron_skills/loredocs
+python3 -m venv .venv && .venv/bin/pip install -e .
+```
+
+### Install via local marketplace
+
+```bash
+/plugin marketplace add ~/projects/side_hustle/marketplace/claude-plugins
+/plugin install loreconvo-test@labyrinth-analytics-claude-plugins
+/plugin install loredocs-test@labyrinth-analytics-claude-plugins
+```
+
+Then enable:
+
+```bash
+/install loreconvo-test
+/install loredocs-test
+```
+
+### Install directly from .plugin file
+
+```bash
+/plugin install ~/projects/side_hustle/marketplace/claude-plugins/plugins/loreconvo-test.plugin
+/plugin install ~/projects/side_hustle/marketplace/claude-plugins/plugins/loredocs-test.plugin
+```
+
+### Verify
+
+Start a new Claude Code session and confirm MCP tools are callable:
+- LoreConvo: call `get_recent_sessions` or `/recall`
+- LoreDocs: call `vault_list`
+
+If tools appear in your session, the local test install is working.
+
+---
+
 ## Plugin Details
 
 ### LoreConvo
