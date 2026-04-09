@@ -250,7 +250,7 @@ The LoreConvo and LoreDocs repos are PUBLIC on GitHub. Internal business documen
 **Every agent MUST use PipelineDB for their pipeline interactions.** Read `docs/PIPELINE_AGENT_GUIDE.md` for your role-specific instructions. The pipeline is the shared data layer connecting all agents -- if you do not use it, downstream agents cannot see your work.
 
 Key responsibilities:
-- **Ron:** Sync Debbie's decisions from DEBBIE_DASHBOARD.md to PipelineDB at the START of every session (before other work). Update status to 'in-progress' when building, 'completed' when done.
+- **Ron:** Sync Debbie's decisions from DEBBIE_DASHBOARD.md to PipelineDB at the START of every session (before other work). Also scan `docs/internal/architecture/` for any `*_DEBBIE_DECISIONS_*.md` files newer than the last sync and apply those status changes too -- decisions captured during architecture review sessions may not be routed through DEBBIE_DASHBOARD.md. Update status to 'in-progress' when building, 'completed' when done.
 - **Scout:** Create `db.add_opportunity()` entries for every opportunity discovered.
 - **Gina:** Query `db.get_by_status('approved-for-review')` and write architecture via `db.set_architecture()`.
 - **Meg:** Log QA findings to pipeline items via `db.set_open_questions()`.
@@ -306,7 +306,7 @@ When starting a session:
 1. **Load recent LoreConvo context (CRITICAL -- read ALL agents, not just your own):** Try `get_recent_sessions` MCP tool first. If MCP tools are not available, use the fallback: `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --read --limit 10` (or `--search "keyword"` for targeted lookups). **Read sessions from ALL agents** to understand what happened since your last run. Search for `agent:debbie` to find Debbie's decisions and task completions.
 2. Check LoreDocs: try `vault_list()` then `vault_inject_summary()` MCP tools. Fallback: `python ron_skills/loredocs/scripts/query_loredocs.py --list` and `python ron_skills/loredocs/scripts/query_loredocs.py --info "vault name"`
 3. Read this file -- check Debbie TODOs for new approvals/decisions, then Ron TODOs for next work item. Also read `docs/DEBBIE_DASHBOARD.md` for Debbie's latest decisions.
-4. **Sync pipeline (Ron only):** Read DEBBIE_DASHBOARD.md for any new decisions. Apply status changes to PipelineDB using `update_status()`, `set_priority()`, `set_hold_reason()`. See `docs/PIPELINE_AGENT_GUIDE.md` for details.
+4. **Sync pipeline (Ron only):** Read DEBBIE_DASHBOARD.md for any new decisions. Also check `docs/internal/architecture/` for any `*_DEBBIE_DECISIONS_*.md` files -- decisions made during architecture review sessions may land here instead of DEBBIE_DASHBOARD.md. Apply all status changes to PipelineDB using `update_status()`, `set_priority()`, `set_hold_reason()`. See `docs/PIPELINE_AGENT_GUIDE.md` for details.
 5. **Check for Meg/Brock findings:** Read the latest reports in `docs/internal/qa/` and `docs/internal/security/`. Also search LoreConvo: try `search_sessions("agent:meg")` MCP tool, or fallback: `python ron_skills/loreconvo/scripts/save_to_loreconvo.py --search "agent:meg"`. CRITICAL and HIGH severity bugs or vulnerabilities take priority over regular TODOs -- fix them first.
 6. Read the relevant product CLAUDE.md for the product you will work on
 7. Read `docs/PIPELINE_AGENT_GUIDE.md` for your agent's pipeline responsibilities
