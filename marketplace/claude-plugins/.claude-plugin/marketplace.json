@@ -40,6 +40,6 @@
       "homepage": "https://github.com/labyrinth-analytics/loredocs",
       "license": "BSL-1.1",
       "keywords": ["knowledge-management", "documents", "search", "ai-projects", "vault"]
-    },
+    }
   ]
 }
